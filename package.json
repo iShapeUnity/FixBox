@@ -1,0 +1,26 @@
+{
+  "name": "com.ishape.fixbox",
+  "version": "0.0.1",
+  "displayName": "iShape.FixBox",
+  "description": "Fix physics simulation",
+  "unity": "2022.2",
+  "keywords": [
+    "physics",
+    "2D",
+    "fix"
+  ],
+  "license": "MIT",
+  "author": {
+    "name": "iShape",
+    "email": "nailxsharipov@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/iShapeUnity/FixBox.git"
+  },
+  "dependencies": {
+    "com.ishape.fixfloat": "0.0.1",
+    "com.unity.mathematics": "1.2.6",
+    "com.unity.collections": "1.2.4"
+  }
+}
