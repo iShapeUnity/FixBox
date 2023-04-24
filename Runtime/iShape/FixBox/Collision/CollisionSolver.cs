@@ -15,8 +15,7 @@ namespace iShape.FixBox.Collision {
                 if (b.Shape.Form == Form.circle) {
                     return CollideCircles(a, b);    
                 } else {
-                    // TODO invert contact
-                    return CollidePolygonAndCircle(b, a);
+                    return CollidePolygonAndCircle(b, a).Invert();
                 }
             } else {
                 if (b.Shape.Form == Form.circle) {
