@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "com.ishape.fixfloat": "0.0.1",
+    "com.ishape.mesh2d": "0.0.6",
     "com.unity.mathematics": "1.2.6",
     "com.unity.collections": "1.2.4"
   }

@@ -1,6 +1,7 @@
 using iShape.FixBox.Collision;
 using iShape.FixFloat;
 using Unity.Collections;
+using UnityEngine.Assertions;
 
 namespace iShape.FixBox.Collider {
 
@@ -12,9 +13,9 @@ namespace iShape.FixBox.Collider {
         public NativeArray<FixVec> Normals { get; }
         public readonly Boundary Boundary;
 
-        public ConvexCollider(long width, long height, Allocator allocator) {
-            long a = (width + 1) >> 1;
-            long b = (height + 1) >> 1;
+        public ConvexCollider(Size size, Allocator allocator) {
+            long a = (size.Width + 1) >> 1;
+            long b = (size.Height + 1) >> 1;
             var points = new NativeArray<FixVec>(4, allocator);
             points[0] = new FixVec(-a, -b);
             points[1] = new FixVec(-a, b);
@@ -35,20 +36,17 @@ namespace iShape.FixBox.Collider {
         }
 
         public ConvexCollider(NativeArray<FixVec> points, Allocator allocator) {
-            int n = points.Length;
-            if (n < 3) {
-                throw new System.ArgumentException("At least 3 points are required");
-            }
+            Assert.IsTrue(points.Length >= 3, "At least 3 points are required");
 
-            var normals = new NativeArray<FixVec>(n, allocator);
+            var normals = new NativeArray<FixVec>(points.Length, allocator);
 
             FixVec centroid = FixVec.Zero;
             long area = 0;
 
-            int j = n - 1;
+            int j = points.Length - 1;
             FixVec p0 = points[j];
 
-            for (int i = 0; i < n; ++i) {
+            for (int i = 0; i < points.Length; ++i) {
                 FixVec p1 = points[i];
                 FixVec e = p1 - p0;
 
@@ -73,7 +71,7 @@ namespace iShape.FixBox.Collider {
             long y = centroid.y.Div(s);
 
             Center = new FixVec(x, y);
-            Points = new NativeArray<FixVec>(n, allocator);
+            Points = new NativeArray<FixVec>(points.Length, allocator);
             
             points.CopyTo(Points);
             Normals = normals;
@@ -91,13 +89,10 @@ namespace iShape.FixBox.Collider {
             int normalIndex = 0;
             long sqrD = long.MaxValue;
             long separation = long.MinValue;
-            int n = Points.Length;
-
-            int i = 0;
 
             long r = circle.Radius + 10;
 
-            while (i < n) {
+            for(int i = 0; i < Points.Length; ++i) {
                 FixVec d = circle.Center - Points[i];
                 long s = Normals[i].DotProduct(d);
 
@@ -117,13 +112,11 @@ namespace iShape.FixBox.Collider {
                         sqrD = dd;
                     }
                 }
-
-                i++;
             }
 
             // Vertices that subtend the incident face.
             int vertIndex1 = normalIndex;
-            int vertIndex2 = (vertIndex1 + 1) % n;
+            int vertIndex2 = (vertIndex1 + 1) % Points.Length;
             FixVec v1 = Points[vertIndex1];
             FixVec v2 = Points[vertIndex2];
             FixVec n1 = Normals[vertIndex1];

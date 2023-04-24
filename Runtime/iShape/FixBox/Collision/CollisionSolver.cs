@@ -1,12 +1,13 @@
 using iShape.FixBox.Collider;
 using iShape.FixBox.Dynamic;
+using Unity.Collections;
 
 namespace iShape.FixBox.Collision {
 
     public static class CollisionSolver {
 
         public static Contact Collide(Body a, Body b) {
-            if (!a.Shape.Boundary.IsCollide(b.Shape.Boundary)) {
+            if (!a.Boundary.IsCollide(b.Boundary)) {
                 return Contact.Outside;
             }
 
@@ -34,20 +35,33 @@ namespace iShape.FixBox.Collision {
         }
         
         private static Contact CollidePolygonAndCircle(Body a, Body b) {
-            if (a.Shape.colliders.Length == 1) {
-                return CollideConvexAndCircle(a, b);
+            if (a.Shape.Form == Form.rect) {
+                return CollideRectAndCircle(a, b);
             } else {
                 return CollideComplexAndCircle(a, b);
             }
         }
 
-        private static Contact CollideConvexAndCircle(Body a, Body b) {
-            var pos = a.Transform.ToLocal(b.Transform.Position);
-            var circleB = new CircleCollider(center: pos, radius: b.Shape.Radius);
+        private static Contact CollideRectAndCircle(Body a, Body b) {
+            var rect = new ConvexCollider(a.Shape.Size, Allocator.Temp);
 
-            var contact = a.Shape.colliders[0].Collide(circleB);
+            var pos = a.Transform.ToLocal(b.Transform.Position);
+            var circle = new CircleCollider(center: pos, radius: b.Shape.Radius);
+            
+            var contact = rect.Collide(circle);
+            rect.Dispose();
 
             return a.Transform.ToWorld(contact);
+        }
+
+        private static Contact CollideConvexAndCircle(Body a, Body b) {
+            // var pos = a.Transform.ToLocal(b.Transform.Position);
+            // var circleB = new CircleCollider(center: pos, radius: b.Shape.Radius);
+            //
+            // var contact = a.Shape.colliders[0].Collide(circleB);
+            //
+            // return a.Transform.ToWorld(contact);
+            return Contact.Outside;
         }
 
         private static Contact CollideComplexAndCircle(Body a, Body b) {

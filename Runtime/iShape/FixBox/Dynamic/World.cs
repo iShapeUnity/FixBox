@@ -8,31 +8,32 @@ using Unity.Collections;
 namespace iShape.FixBox.Dynamic {
 
     public struct World {
+        
         public readonly WorldSettings Settings;
         public readonly Boundary CollisionBoundary;
         public readonly Boundary FreezeBoundary;
         public readonly bool IsDebug;
-        public long Tick { get; private set; }
+        public FixVec Gravity;
 
         internal BodyStore bodyStore;
-        internal GridSpace landGrid;
-        
-        public World(Boundary boundary, WorldSettings settings, bool isDebug, Allocator allocator) {
+        public GridSpace LandGrid;
+
+        public double TimeStep => (1L << Settings.TimeScale).ToDouble();
+
+        public World(Boundary boundary, WorldSettings settings, FixVec gravity, bool isDebug, Allocator allocator) {
             CollisionBoundary = boundary;
             FreezeBoundary = new Boundary(boundary.Min - new FixVec(settings.FreezeMargin, settings.FreezeMargin), boundary.Max + new FixVec(settings.FreezeMargin, settings.FreezeMargin));
             Settings = settings;
+            Gravity = gravity;
             IsDebug = isDebug;
-
-            Tick = 0;
-
             
             bodyStore = new BodyStore(settings.LandCapacity, settings.PlayerCapacity, settings.BulletCapacity, allocator);
-            landGrid = new GridSpace(settings.GridSpaceFactor, allocator);
+            LandGrid = new GridSpace(CollisionBoundary, settings.GridSpaceFactor, allocator);
         }
 
         public void Dispose() {
             bodyStore.Dispose();
-            landGrid.Dispose();
+            LandGrid.Dispose();
         }
 
         public void Iterate() {
@@ -66,13 +67,13 @@ namespace iShape.FixBox.Dynamic {
 
                     var player = players[j];
 
-                    player.Iterate(bodyTimeScale);
+                    player.Iterate(bodyTimeScale, Gravity);
 
                     players[j] = player;
 
                     // collide with lands
 
-                    var indexMask = landGrid.Collide(player.Boundary);
+                    var indexMask = LandGrid.Collide(player.Boundary);
 
                     while (indexMask.HasNext()) {
                         int i = indexMask.Next();
@@ -84,10 +85,10 @@ namespace iShape.FixBox.Dynamic {
 
                 // update bullets
 
-                for (int j = 0; j < players.Length; ++j) {
+                for (int j = 0; j < bullets.Length; ++j) {
                     var bullet = bullets[j];
 
-                    bullet.Iterate(bodyTimeScale);
+                    bullet.Iterate(bodyTimeScale, Gravity);
 
                     bullets[j] = bullet;
 
@@ -142,13 +143,11 @@ namespace iShape.FixBox.Dynamic {
                     }
                 }
             }
-            
-            Tick += 1;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Actor GetActor(WeakIndex weakIndex) {
-            return bodyStore.GetActor(weakIndex);
+        public Actor GetActor(BodyIndex bodyIndex) {
+            return bodyStore.GetActor(bodyIndex);
         }
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -157,9 +156,17 @@ namespace iShape.FixBox.Dynamic {
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public WeakIndex AddBody(Body body) {
-            return bodyStore.AddBody(body);
+        public BodyIndex AddBody(Body body) {
+            var index = bodyStore.AddBody(body);
+
+            var isLand = body.Type == BodyType.land && body.Shape.IsNotEmpty;
+            if (isLand) {
+                LandGrid.Set(body.Boundary, index.Index);
+            }
+
+            return index;
         }
+        
     }
 
 }

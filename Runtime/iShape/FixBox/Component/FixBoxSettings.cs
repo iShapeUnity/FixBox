@@ -6,7 +6,7 @@ namespace iShape.FixBox.Component {
 
     [CreateAssetMenu(fileName = "FixBoxSettings", menuName = "FixBox/Settings")]
     public class FixBoxSettings: ScriptableObject {
-        
+
         [Range(min: 2, max: 8)]
         public int TimeScale = 4;
         [Range(min: 1, max: 4)]

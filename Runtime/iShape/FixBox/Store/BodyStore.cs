@@ -23,16 +23,16 @@ namespace iShape.FixBox.Store {
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Actor GetActor(WeakIndex weakIndex) {
-            return weakIndex.Type switch {
-                BodyType.land => landList.Get(weakIndex),
-                BodyType.player => playerList.Get(weakIndex),
-                _ => bulletList.Get(weakIndex)
+        public Actor GetActor(BodyIndex bodyIndex) {
+            return bodyIndex.Type switch {
+                BodyType.land => landList.Get(bodyIndex),
+                BodyType.player => playerList.Get(bodyIndex),
+                _ => bulletList.Get(bodyIndex)
             };
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public WeakIndex SetActor(Actor actor) {
+        public BodyIndex SetActor(Actor actor) {
             return actor.Index.Type switch {
                 BodyType.land => landList.Set(actor),
                 BodyType.player => playerList.Set(actor),
@@ -56,7 +56,7 @@ namespace iShape.FixBox.Store {
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public WeakIndex AddBody(Body body) {
+        public BodyIndex AddBody(Body body) {
             return body.Type switch {
                 BodyType.player => playerList.Add(body),
                 BodyType.bullet => bulletList.Add(body),
@@ -65,7 +65,7 @@ namespace iShape.FixBox.Store {
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void RemoveActor(WeakIndex index) {
+        public void RemoveActor(BodyIndex index) {
             switch (index.Type) {
                 case BodyType.land:
                     landList.Remove(index);

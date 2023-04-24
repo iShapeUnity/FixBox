@@ -1,61 +1,36 @@
 using iShape.FixFloat;
-using UnityEditor;
 using UnityEngine;
 
 namespace iShape.FixBox.Component {
 
-    public class FixBoxRectCollider : MonoBehaviour {
+    public class FixBoxRectCollider : MonoBehaviour, ISerializationCallbackReceiver {
 
-        [SerializeField, HideInInspector]
-        internal float Width = 1.0f;
+        [SerializeField]
+        public float Width = 1.0f;
         
-        [SerializeField, HideInInspector]
-        internal float Height = 1.0f;
+        [SerializeField]
+        public float Height = 1.0f;
 
-        [SerializeField, HideInInspector]
+        // [HideInInspector]
         public long FixWidth = FixNumber.Unit;
 
-        [SerializeField, HideInInspector]
+        // [HideInInspector]
         public long FixHeight = FixNumber.Unit;
         
-        public void SetWidth(float value)
+        private void OnDrawGizmos()
         {
-            Width = value;
-            FixWidth = value.ToFix();
+            Gizmos.matrix = transform.localToWorldMatrix;
+            Gizmos.color = Color.green;
+            Gizmos.DrawWireCube(Vector3.zero, new Vector3(Width, Height, 0));
         }
         
-        public void SetHeight(float value)
-        {
-            Height = value;
-            FixHeight = value.ToFix();
+        public void OnBeforeSerialize() {
+            FixWidth = Width.ToFix();
+            FixHeight = Height.ToFix();
         }
-    }
 
-    [CustomEditor(typeof(FixBoxRectCollider))]
-    public class FixBoxRectColliderEditor : Editor
-    {
-        public override void OnInspectorGUI()
-        {
-            var collider = target as FixBoxRectCollider;
-            if (collider == null) {
-                return;
-            }
-
-            EditorGUILayout.Space();
-            GUILayout.Label("Rectangle", EditorStyles.boldLabel);
-            EditorGUILayout.Space();
-            
-            EditorGUI.BeginChangeCheck();
-
-            var newWidth = EditorGUILayout.Slider("Width", collider.Width, 0.1f, 100f);
-            collider.SetWidth(newWidth);
-            
-            var newHeight = EditorGUILayout.Slider("Height", collider.Height, 0.1f, 100f);
-            collider.SetHeight(newHeight);
-            
-            EditorUtility.SetDirty(target);
-            EditorGUI.EndChangeCheck();
-        }
+        public void OnAfterDeserialize() {}
+        
     }
 
 }

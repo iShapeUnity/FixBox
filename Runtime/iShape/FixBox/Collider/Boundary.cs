@@ -1,11 +1,10 @@
-using System;
+using System.Runtime.CompilerServices;
 using Unity.Mathematics;
 using Unity.Collections;
 using iShape.FixFloat;
 
 namespace iShape.FixBox.Collider {
 
-    [Serializable]
     public struct Boundary {
         
         public static readonly Boundary Zero = new Boundary(FixVec.Zero, FixVec.Zero);
@@ -13,16 +12,29 @@ namespace iShape.FixBox.Collider {
         public FixVec Min;
         public FixVec Max;
 
+        public FixVec Size => Max - Min;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Boundary(FixVec min, FixVec max) {
             this.Min = min;
             this.Max = max;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Boundary(long radius) {
             Min = new FixVec(-radius, -radius);
             Max = new FixVec(radius, radius);
         }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Boundary(Size size) {
+            var a = size.Width >> 1;
+            var b = size.Height >> 1;
+            Min = new FixVec(-a, -b);
+            Max = new FixVec(a, b);
+        }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Boundary(NativeArray<FixVec> points) {
             int n = points.Length;
             int i = 1;
@@ -47,28 +59,12 @@ namespace iShape.FixBox.Collider {
             Max = new FixVec(maxX, maxY);
         }
 
-        public Boundary(NativeArray<Boundary> boxes) {
-            int n = boxes.Length;
-
-            if (n > 0) {
-                Boundary boundary = boxes[0];
-
-                for (int i = 1; i < n; i++) {
-                    boundary = boundary.Union(boxes[i]);
-                }
-
-                Min = boundary.Min;
-                Max = boundary.Max;
-            } else {
-                Min = FixVec.Zero;
-                Max = FixVec.Zero;
-            }
-        }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Boundary Translate(FixVec delta) {
             return new Boundary(Min + delta, Max + delta);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Boundary Union(Boundary box) {
             long minX = math.min(Min.x, box.Min.x);
             long minY = math.min(Min.y, box.Min.y);
@@ -78,6 +74,7 @@ namespace iShape.FixBox.Collider {
             return new Boundary(new FixVec(minX, minY), new FixVec(maxX, maxY));
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsCollide(Boundary box) {
             if (Max.x < box.Min.x || Min.x > box.Max.x) {
                 return false;
@@ -90,6 +87,7 @@ namespace iShape.FixBox.Collider {
             return true;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsCollideCircle(FixVec center, long radius) {
             long cx = math.clamp(center.x, Min.x, Max.x);
             long cy = math.clamp(center.y, Min.y, Max.y);

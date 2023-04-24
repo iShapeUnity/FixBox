@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 using iShape.FixBox.Collider;
 using iShape.FixBox.Collision;
 using iShape.FixFloat;
@@ -13,6 +14,7 @@ namespace iShape.FixBox.Dynamic {
 
         private readonly RotationMatrix rotator;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Transform(FixVec position, long angle) {
             Position = position;
             Angle = angle;
@@ -23,24 +25,29 @@ namespace iShape.FixBox.Dynamic {
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private Transform(FixVec position, long angle, RotationMatrix rotator) {
             Position = position;
             Angle = angle;
             this.rotator = rotator;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public FixVec ToLocal(FixVec point) {
             return rotator.RotateForward(point - Position);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public FixVec ToWorld(FixVec point) {
             return rotator.RotateBack(point) + Position;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public FixVec ToLocalVector(FixVec vector) {
             return rotator.RotateForward(vector);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public FixVec ToWorldVector(FixVec vector) {
             return rotator.RotateBack(vector);
         }
@@ -69,6 +76,7 @@ namespace iShape.FixBox.Dynamic {
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Contact ToWorld(Contact contact) {
             FixVec point = ToWorld(contact.Point);
             FixVec normalA = ToWorldVector(contact.A.Normal);
@@ -79,15 +87,16 @@ namespace iShape.FixBox.Dynamic {
             };
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Transform Apply(Velocity v, int timeScale) {
             FixVec dv = v.Linear.DivTwo(timeScale);
             FixVec p = Position + dv;
 
             if (v.Angular != 0) {
                 long a = Angle + (v.Angular >> timeScale);
-                return new Transform(position: p, angle: a);
+                return new Transform(p, a);
             } else {
-                return new Transform(position: p, angle: Angle, rotator: rotator);
+                return new Transform(p, Angle, rotator);
             }
         }
     }

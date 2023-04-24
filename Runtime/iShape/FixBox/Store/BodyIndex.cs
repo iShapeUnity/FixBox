@@ -2,25 +2,25 @@ using iShape.FixBox.Dynamic;
 
 namespace iShape.FixBox.Store {
 
-    public readonly struct WeakIndex {
+    public readonly struct BodyIndex {
 
         internal readonly long Id;
         internal readonly int Index;
         internal readonly BodyType Type;
         internal readonly int TimeStamp;
 
-        internal WeakIndex(long id, int index, int timeStamp, BodyType type) {
+        internal BodyIndex(long id, int index, int timeStamp, BodyType type) {
             Index = index;
             Id = id;
             TimeStamp = timeStamp;
             Type = type;
         }
         
-        internal WeakIndex(WeakIndex weakIndex, int index, int timeStamp) {
+        internal BodyIndex(BodyIndex bodyIndex, int index, int timeStamp) {
             Index = index;
-            Id = weakIndex.Id;
+            Id = bodyIndex.Id;
             TimeStamp = timeStamp;
-            Type = weakIndex.Type;
+            Type = bodyIndex.Type;
         }
     }
 }

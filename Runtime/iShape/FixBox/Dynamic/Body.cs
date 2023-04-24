@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using iShape.FixBox.Collider;
 using iShape.FixFloat;
 
@@ -17,6 +18,7 @@ namespace iShape.FixBox.Dynamic {
         public Boundary Boundary;
         public bool IsAlive;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Body(long id, BodyType type, Material material) {
             Id = id;
             Type = type;
@@ -31,6 +33,7 @@ namespace iShape.FixBox.Dynamic {
             IsAlive = true;
         }
         
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Body(long id, BodyType type) {
             Id = id;
             Type = type;
@@ -44,13 +47,9 @@ namespace iShape.FixBox.Dynamic {
             Boundary = Boundary.Zero;
             IsAlive = true;
         }
-
-        public void Dispose() {
-            Shape.Dispose();
-        }
         
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Attach(Shape shape) {
-            Shape.Dispose();
             Shape = shape;
             if (Type != BodyType.land) {
                 Mass = shape.Area.Mul(Material.Density);
@@ -59,10 +58,20 @@ namespace iShape.FixBox.Dynamic {
             Boundary = Transform.ToWorld(shape.Boundary);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Iterate(int timeScale) {
             Transform = Transform.Apply(Velocity, timeScale);
             Boundary = Transform.ToWorld(Shape.Boundary);
         }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void Iterate(int timeScale, FixVec Gravity) {
+            Velocity = Velocity.Apply(timeScale, Gravity);
+            Transform = Transform.Apply(Velocity, timeScale);
+            Boundary = Transform.ToWorld(Shape.Boundary);
+        }
+        
+        
     }
 
 }

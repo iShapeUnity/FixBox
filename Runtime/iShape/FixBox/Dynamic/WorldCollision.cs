@@ -11,7 +11,7 @@ namespace iShape.FixBox.Dynamic {
 
             var contact = CollisionSolver.Collide(a.Body, b.Body);
             
-            if (contact.Type != ContactType.Outside) {
+            if (contact.Type == ContactType.Outside) {
                 return;
             }
 
@@ -35,7 +35,7 @@ namespace iShape.FixBox.Dynamic {
             
             var new_aVel = vNx - kb * vNy;
             var new_aBody = a.Body;
-            new_aBody.Velocity.Linear = new_aVel;
+            new_aBody.Velocity = new Velocity(new_aVel, new_aBody.Velocity.Angular);
             
             world.bodyStore.SetBody(new BodyHandler(a.Index, new_aBody));
             

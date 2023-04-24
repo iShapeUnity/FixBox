@@ -9,6 +9,8 @@ namespace iShape.FixBox.Store {
     public struct SortedList {
         
         private int timeStamp;
+        
+        // TODO switch to Native Array
         private NativeList<long> ids;
         public NativeList<Body> Items;
 
@@ -21,22 +23,22 @@ namespace iShape.FixBox.Store {
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Actor Get(WeakIndex weakIndex)
+        public Actor Get(BodyIndex bodyIndex)
         {
             int index;
-            if (weakIndex.TimeStamp == timeStamp) {
-                index = weakIndex.Index;
+            if (bodyIndex.TimeStamp == timeStamp) {
+                index = bodyIndex.Index;
             } else {
-                index = ids.FindIndex(value: weakIndex.Id);    
+                index = ids.FindIndex(value: bodyIndex.Id);    
             }
 
-            var newBodyIndex = new WeakIndex(weakIndex.Id, index, timeStamp, weakIndex.Type);
+            var newBodyIndex = new BodyIndex(bodyIndex.Id, index, timeStamp, bodyIndex.Type);
 
             return new Actor(newBodyIndex, Items[index]);
         }
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public WeakIndex Set(Actor actor)
+        public BodyIndex Set(Actor actor)
         {
             int index;
             if (actor.Index.TimeStamp == timeStamp) {
@@ -47,16 +49,16 @@ namespace iShape.FixBox.Store {
 
             Items[index] = actor.Body;
 
-            return new WeakIndex(actor.Index, index, timeStamp);
+            return new BodyIndex(actor.Index, index, timeStamp);
         }
         
-        public WeakIndex Add(Body body)
+        public BodyIndex Add(Body body)
         {
             if (ids.Length == 0)
             {
                 ids.Add(body.Id);
                 Items.Add(body);
-                return new WeakIndex(body.Id, 0, timeStamp, body.Type);
+                return new BodyIndex(body.Id, 0, timeStamp, body.Type);
             }
 
             int index = ids.FindFreeIndex(body.Id);
@@ -69,16 +71,16 @@ namespace iShape.FixBox.Store {
             ids.Insert(index, body.Id);
             Items.Insert(index, body);
             
-            return new WeakIndex(body.Id, index, timeStamp, body.Type);
+            return new BodyIndex(body.Id, index, timeStamp, body.Type);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Remove(WeakIndex weakIndex) {
+        public void Remove(BodyIndex bodyIndex) {
             int index;
-            if (weakIndex.TimeStamp == timeStamp) {
-                index = weakIndex.Index;
+            if (bodyIndex.TimeStamp == timeStamp) {
+                index = bodyIndex.Index;
             } else {
-                index = ids.FindIndex(value: weakIndex.Id);    
+                index = ids.FindIndex(value: bodyIndex.Id);    
             }
             
             Assert.AreNotEqual(-1, index, "Index should not be -1");
@@ -99,9 +101,6 @@ namespace iShape.FixBox.Store {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Dispose()
         {
-            for (int i = 0; i < Items.Length; ++i) {
-                Items[i].Dispose();
-            }
             ids.Dispose();
             Items.Dispose();
         }
