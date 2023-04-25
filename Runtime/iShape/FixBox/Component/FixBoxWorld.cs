@@ -1,5 +1,5 @@
 using iShape.FixBox.Collider;
-using iShape.FixBox.Debug;
+using iShape.FixBox.Render;
 using iShape.FixBox.Dynamic;
 using iShape.FixFloat;
 using Unity.Collections;
@@ -58,6 +58,8 @@ namespace iShape.FixBox.Component {
             simulator.Update();
             if (IsDebugGridSpace && FixBoxSimulator.Shared.isReady) {
                 this.gameObject.DrawLandGrid(simulator.World.LandGrid);
+            } else {
+                this.gameObject.RemoveLandGrid();
             }
         }
         
@@ -94,6 +96,15 @@ namespace iShape.FixBox.Component {
         }
 
         public void OnAfterDeserialize() {}
+        
+#if UNITY_EDITOR
+        private void OnValidate() {
+
+            if (Settings == null) {
+                Settings = Resources.Load<FixBoxSettings>("FixBoxDefaultSettings");
+            }
+        }
+#endif
     }
 
 }

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using iShape.FixBox.Collider;
-using iShape.FixBox.Debug;
+using iShape.FixBox.Render;
 using iShape.FixBox.Dynamic;
 using iShape.FixBox.Store;
 using iShape.FixFloat;
@@ -31,7 +31,7 @@ namespace iShape.FixBox.Component {
             }
 
             if (Material == null) {
-                Material = Resources.Load<FixBoxMaterial>("FixBoxDefault");
+                Material = Resources.Load<FixBoxMaterial>("FixBoxDefaultMaterial");
             }
         }
 #endif

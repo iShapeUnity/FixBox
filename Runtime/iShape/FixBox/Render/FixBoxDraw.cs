@@ -6,7 +6,7 @@ using iShape.Mesh2d;
 using Unity.Collections;
 using Unity.Mathematics;
 
-namespace iShape.FixBox.Debug {
+namespace iShape.FixBox.Render {
 
     public static class FixBoxDraw {
 
@@ -111,15 +111,22 @@ namespace iShape.FixBox.Debug {
                         var cx = (x - a + 0.5f) * ds.x;
                         var cy = (y - a + 0.5f) * ds.y;
 
-                        color.a = math.max(1f, (count + 1) / 10f);
+                        color.a = math.max(1f, 0.1f * count);
                         
-                        var rectFill = MeshGenerator.Rect(new float2(cx, cy), cellSize, 0, Allocator.Temp);
+                        var rectFill = MeshGenerator.Rect(new float2(cx, cy), cellSize, 0.1f, Allocator.Temp);
                         colorMesh.AddAndDispose(rectFill, color);
                     }
                 }   
             }
             
             meshFilter.mesh.SetAndDispose(colorMesh);
+        }
+        
+        public static void RemoveLandGrid(this GameObject gameObject) {
+            MeshFilter meshFilter = gameObject.GetDebugChild();
+            if (meshFilter.mesh != null) {
+                meshFilter.mesh.Clear();
+            }
         }
     }
 

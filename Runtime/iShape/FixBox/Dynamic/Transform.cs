@@ -81,7 +81,7 @@ namespace iShape.FixBox.Dynamic {
             FixVec point = ToWorld(contact.Point);
             FixVec normalA = ToWorldVector(contact.A.Normal);
 
-            return new Contact(point, contact.Type) {
+            return new Contact(point, contact.Delta, contact.Type) {
                 A = new Contact.BodyPoint(normalA, contact.A.Radius),
                 B = new Contact.BodyPoint(normalA.Reverse, contact.B.Radius)
             };
@@ -98,6 +98,11 @@ namespace iShape.FixBox.Dynamic {
             } else {
                 return new Transform(p, Angle, rotator);
             }
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Transform Apply(FixVec delta) {
+            return new Transform(Position + delta, Angle, rotator);
         }
     }
 

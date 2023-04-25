@@ -36,6 +36,10 @@ namespace iShape.FixBox.Dynamic {
             var new_aVel = vNx - kb * vNy;
             var new_aBody = a.Body;
             new_aBody.Velocity = new Velocity(new_aVel, new_aBody.Velocity.Angular);
+
+            var dNy = contact.Delta * aNy;
+
+            new_aBody.Transform = new_aBody.Transform.Apply(dNy);
             
             world.bodyStore.SetBody(new BodyHandler(a.Index, new_aBody));
             

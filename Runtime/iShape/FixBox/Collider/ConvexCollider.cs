@@ -87,7 +87,6 @@ namespace iShape.FixBox.Collider {
         public Contact Collide(CircleCollider circle) {
             // Find the min separating edge.
             int normalIndex = 0;
-            long sqrD = long.MaxValue;
             long separation = long.MinValue;
 
             long r = circle.Radius + 10;
@@ -103,14 +102,6 @@ namespace iShape.FixBox.Collider {
                 if (s > separation) {
                     separation = s;
                     normalIndex = i;
-                    sqrD = d.SqrLength;
-                } else if (s == separation) {
-                    long dd = d.SqrLength;
-                    if (dd < sqrD) {
-                        separation = s;
-                        normalIndex = i;
-                        sqrD = dd;
-                    }
                 }
             }
 
@@ -123,9 +114,11 @@ namespace iShape.FixBox.Collider {
 
             FixVec faceCenter = v1.Middle(v2);
 
+            long delta = circle.Radius - separation;
+            
             // If the center is inside the polygon ...
             if (separation < 0) {
-                return new Contact(point: faceCenter, type: ContactType.Inside) {
+                return new Contact(faceCenter, delta, ContactType.Inside) {
                     A = new Contact.BodyPoint(n1.Reverse, 0),
                     B = new Contact.BodyPoint(n1, circle.Radius)
                 };
@@ -142,7 +135,7 @@ namespace iShape.FixBox.Collider {
                 }
 
                 var nB = (circle.Center - v1).Normalize;
-                return new Contact(v1, ContactType.Collide) {
+                return new Contact(v1, delta, ContactType.Collide) {
                     A = new Contact.BodyPoint(nB.Reverse, 0),
                     B = new Contact.BodyPoint(nB, circle.Radius)
                 };
@@ -156,7 +149,7 @@ namespace iShape.FixBox.Collider {
                 }
                 
                 var nB = (circle.Center - v2).Normalize;
-                return new Contact(v2, ContactType.Collide) {
+                return new Contact(v2, delta, ContactType.Collide) {
                     A = new Contact.BodyPoint(nB.Reverse, 0),
                     B = new Contact.BodyPoint(nB, circle.Radius)
                 };
@@ -170,7 +163,7 @@ namespace iShape.FixBox.Collider {
             long dc = (circle.Center - v2).DotProduct(n1);
             FixVec m = circle.Center - dc * n1;
 
-            return new Contact(m, ContactType.Collide) {
+            return new Contact(m, delta, ContactType.Collide) {
                 A = new Contact.BodyPoint(n1.Reverse, 0),
                 B = new Contact.BodyPoint(n1, circle.Radius)
             };

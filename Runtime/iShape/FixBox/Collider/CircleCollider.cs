@@ -40,10 +40,7 @@ namespace iShape.FixBox.Collider {
 
                     var nA = dv.Normalize;
                     
-                    return new Contact(
-                        point: p,
-                        type: ContactType.Collide
-                    ) {
+                    return new Contact(p, 0, ContactType.Collide) {
                         A = new Contact.BodyPoint(nA, Radius),
                         B = new Contact.BodyPoint(nA.Reverse, circle.Radius)
                     };
@@ -51,10 +48,7 @@ namespace iShape.FixBox.Collider {
                 else
                 {
                     FixVec p = (ca + cb).Half;
-                    return new Contact(
-                        point: p,
-                        type: ContactType.Inside
-                    ) {
+                    return new Contact(p, 0, ContactType.Inside) {
                         A = new Contact.BodyPoint(FixVec.Zero, Radius),
                         B = new Contact.BodyPoint(FixVec.Zero, circle.Radius)
                     };
