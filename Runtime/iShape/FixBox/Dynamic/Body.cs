@@ -11,8 +11,9 @@ namespace iShape.FixBox.Dynamic {
 
         public Shape Shape { get; private set; }
         public Material Material;
+        public long InvMass;
         public long Mass;
-        public long invInertia;
+        public long Inertia;
         public Velocity Velocity;
         public Transform Transform;
         public Boundary Boundary;
@@ -25,8 +26,9 @@ namespace iShape.FixBox.Dynamic {
 
             Material = material;
             Shape = Shape.Empty;
+            InvMass = 0;
             Mass = 0;
-            invInertia = 0;
+            Inertia = 0;
             Velocity = Velocity.Zero;
             Transform = Transform.Zero;
             Boundary = Boundary.Zero;
@@ -38,8 +40,8 @@ namespace iShape.FixBox.Dynamic {
             Shape = shape;
             if (Type != BodyType.land) {
                 Mass = shape.Area.Mul(Material.Density);
-                var i = shape.Inertia.Mul(Material.Density);
-                invInertia = FixNumber.Unit.Div(i);
+                InvMass = FixNumber.Unit.Div(Mass);
+                Inertia = shape.Inertia.Mul(Material.Density);
             }
             Boundary = Transform.ToWorld(shape.Boundary);
         }

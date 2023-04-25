@@ -29,7 +29,7 @@ namespace iShape.FixBox.Component {
         public void Start() {
             currentTick = 0;
             startTime = Time.timeAsDouble;
-            this.StartJob(1);
+            isRun = false;
         }
 
         public void Update() {
@@ -51,7 +51,6 @@ namespace iShape.FixBox.Component {
         }
 
         private void StartJob(int count) {
-            // UnityEngine.Debug.Log("Start simulation from " + currentTick + " - " + jobEndTick);
             var iterateJob = new IterateWorld {
                 count = count,
                 World = World
