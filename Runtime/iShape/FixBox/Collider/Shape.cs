@@ -34,7 +34,7 @@ namespace iShape.FixBox.Collider {
             Boundary = new Boundary(radius);
             long rr = radius.Sqr();
             Area = FixNumber.Pi.Mul(rr);
-            Inertia = rr >> 1;
+            Inertia = Area.Mul(rr) >> 1;
         }
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -44,7 +44,8 @@ namespace iShape.FixBox.Collider {
             Form = Form.rect;
             Boundary = new Boundary(size);
             Area = size.Area();
-            Inertia = Area;
+            long ab = (size.Width.Sqr() + size.Height.Sqr()) / 12; 
+            Inertia = ab.Mul(Area);
         }
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

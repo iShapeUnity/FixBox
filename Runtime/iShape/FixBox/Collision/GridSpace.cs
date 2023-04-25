@@ -16,11 +16,6 @@ namespace iShape.FixBox.Collision {
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void SetBit(int index) {
-            Value |= 1UL << index;
-        }
-        
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool HasNext() {
             return Value > 0;
         }
@@ -31,14 +26,14 @@ namespace iShape.FixBox.Collision {
         }
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Clear(BitMask m) {
-            Value &= ulong.MaxValue - m.Value;
+        public void Intersection(ulong m) {
+            Value &= m;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int Next() {
             int index = math.tzcnt(Value);
-            Value -= 1UL << index;
+            Value &= ~(1UL << index);
             return index;
         }
 
@@ -46,10 +41,29 @@ namespace iShape.FixBox.Collision {
         public int Count() {
             return math.countbits(Value);
         }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void AddSpaceRightMask(ulong rightMask) {
+            Value = ((Value & ~rightMask) << 1) | (Value & rightMask);
+        }
+
+        public float4 Color() {
+            var x = Value;
+            if (x != 0) {
+                float r = (byte)(x & 0xFF) / 255f;
+                x = x >> 8;
+                float g = (byte)(x & 0xFF) / 255f;
+                x = x >> 8;
+                float b = (byte)(x & 0xFF) / 255f;
+                return new float4(r, g, b, .8f);
+            } else {
+                return new float4(0, 0, 0, 0f);
+            }
+        }
     }
 
     public struct GridSpace {
-        public Boundary Base { get; }
+        private Boundary Base { get; }
         public NativeArray<BitMask> Cells;
         public readonly int RowCellCount;
 
@@ -84,16 +98,11 @@ namespace iShape.FixBox.Collision {
             return (y << splitRatio) + x;
         }
 
-        public BitMask this[int x, int y] {
-            get {
-                var index = Index(x, y);
-                return Cells[Index(x, y)];        
-            }
-        }
-        
+        public BitMask this[int x, int y] => Cells[Index(x, y)];
+
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Clear() {
+        private void Clear() {
             var zeroMask = new BitMask(0);
             for (int i = 0; i < Cells.Length; i++) {
                 Cells[i] = zeroMask;
@@ -110,8 +119,8 @@ namespace iShape.FixBox.Collision {
                 cell.Union(s);
                 Cells[a0] = cell;
             } else {
-                for (int y = j.pMin.y; y <= j.pMax.y; y++) {
-                    for (int x = j.pMin.x; x <= j.pMax.x; x++) {
+                for (int y = j.pMin.y; y <= j.pMax.y; ++y) {
+                    for (int x = j.pMin.x; x <= j.pMax.x; ++x) {
                         int ai = Index(x, y);
             
                         var cell = Cells[ai];
@@ -121,22 +130,32 @@ namespace iShape.FixBox.Collision {
                 }
             }
         }
-        
-        public void Clear(Boundary box, int i) {
-            BitMask s = new BitMask(1UL << i);
+
+        public void AddPlace(int index) {
+            ulong rightMask = (1UL << index) - 1;
+            for (int i = 0; i < Cells.Length; ++i) {
+                var cell = Cells[i];
+                cell.AddSpaceRightMask(rightMask);
+                Cells[i] = cell;
+            }
+        }
+
+        private void Clear(Boundary box, int i) {
+            ulong reverseMask = ~(1UL << i);
+            
             IndexBoundary j = box.Index(Base, iScale, RowCellCount);
             
             if (j.IsSimple) {
                 int a0 = Index(j.pMin.x, j.pMin.y);
                 var cell = Cells[a0];
-                cell.Clear(s);
+                cell.Intersection(reverseMask);
                 Cells[a0] = cell;
             } else {
-                for (int y = j.pMin.y; y <= j.pMax.y; y++) {
-                    for (int x = j.pMin.x; x <= j.pMax.x; x++) {
+                for (int y = j.pMin.y; y <= j.pMax.y; ++y) {
+                    for (int x = j.pMin.x; x <= j.pMax.x; ++x) {
                         int ai = Index(x, y);
                         var cell = Cells[ai];
-                        cell.Clear(s);
+                        cell.Intersection(reverseMask);
                         Cells[ai] = cell;
                     }
                 }
@@ -150,20 +169,18 @@ namespace iShape.FixBox.Collision {
         }
 
         public BitMask Collide(Boundary boundary) {
+            BitMask result = new BitMask(0);
             if (!Base.IsCollide(boundary)) {
-                return new BitMask(0);
+                return result;
             }
 
-            IndexBoundary j = boundary.Index(Base, iScale, RowCellCount);
-
-            BitMask result = new BitMask(0);
+            var j = boundary.Index(Base, iScale, RowCellCount);
 
             if (j.IsSimple) {
-
                 result = this[j.pMin.x, j.pMin.y];
             } else {
-                for (int y = j.pMin.y; y <= j.pMax.y; y++) {
-                    for (int x = j.pMin.x; x <= j.pMax.x; x++) {
+                for (int y = j.pMin.y; y <= j.pMax.y; ++y) {
+                    for (int x = j.pMin.x; x <= j.pMax.x; ++x) {
                         result.Union(this[x, y]);
                     }
                 }

@@ -74,6 +74,7 @@ namespace iShape.FixBox.Render {
                 var debugObject = new GameObject(DebugNode);
                 debugObject.transform.parent = gameObject.transform;
                 debugObject.transform.localPosition = Vector3.zero;
+                debugObject.transform.localRotation = Quaternion.identity;
                 
                 MeshFilter meshFilter = debugObject.AddComponent<MeshFilter>();
                 
@@ -102,7 +103,6 @@ namespace iShape.FixBox.Render {
             var n = space.RowCellCount;
             var a = 0.5f * n;
 
-            var color = GridSpaceColor;
             
             for (int y = 0; y < n; ++y) {
                 for (int x = 0; x < n; ++x) {
@@ -111,7 +111,9 @@ namespace iShape.FixBox.Render {
                         var cx = (x - a + 0.5f) * ds.x;
                         var cy = (y - a + 0.5f) * ds.y;
 
-                        color.a = math.max(1f, 0.1f * count);
+                        var c = space[x, y].Color();
+
+                        var color = new Color(c.x, c.y, c.z, c.w);
                         
                         var rectFill = MeshGenerator.Rect(new float2(cx, cy), cellSize, 0.1f, Allocator.Temp);
                         colorMesh.AddAndDispose(rectFill, color);

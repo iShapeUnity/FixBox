@@ -12,7 +12,7 @@ namespace iShape.FixBox.Dynamic {
         public Shape Shape { get; private set; }
         public Material Material;
         public long Mass;
-        public long Inertia;
+        public long invInertia;
         public Velocity Velocity;
         public Transform Transform;
         public Boundary Boundary;
@@ -26,22 +26,7 @@ namespace iShape.FixBox.Dynamic {
             Material = material;
             Shape = Shape.Empty;
             Mass = 0;
-            Inertia = 0;
-            Velocity = Velocity.Zero;
-            Transform = Transform.Zero;
-            Boundary = Boundary.Zero;
-            IsAlive = true;
-        }
-        
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Body(long id, BodyType type) {
-            Id = id;
-            Type = type;
-
-            Material = Material.Ordinary;
-            Shape = Shape.Empty;
-            Mass = 0;
-            Inertia = 0;
+            invInertia = 0;
             Velocity = Velocity.Zero;
             Transform = Transform.Zero;
             Boundary = Boundary.Zero;
@@ -53,7 +38,8 @@ namespace iShape.FixBox.Dynamic {
             Shape = shape;
             if (Type != BodyType.land) {
                 Mass = shape.Area.Mul(Material.Density);
-                Inertia = shape.Inertia.Mul(Material.Density);
+                var i = shape.Inertia.Mul(Material.Density);
+                invInertia = FixNumber.Unit.Div(i);
             }
             Boundary = Transform.ToWorld(shape.Boundary);
         }
@@ -70,8 +56,6 @@ namespace iShape.FixBox.Dynamic {
             Transform = Transform.Apply(Velocity, timeScale);
             Boundary = Transform.ToWorld(Shape.Boundary);
         }
-        
-        
     }
 
 }

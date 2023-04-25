@@ -89,7 +89,7 @@ namespace iShape.FixBox.Collider {
             int normalIndex = 0;
             long separation = long.MinValue;
 
-            long r = circle.Radius + 10;
+            long r = circle.Radius + 100;
 
             for(int i = 0; i < Points.Length; ++i) {
                 FixVec d = circle.Center - Points[i];

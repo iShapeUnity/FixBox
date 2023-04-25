@@ -4,6 +4,7 @@ using iShape.FixBox.Render;
 using iShape.FixBox.Dynamic;
 using iShape.FixBox.Store;
 using iShape.FixFloat;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Assertions;
 
@@ -38,7 +39,7 @@ namespace iShape.FixBox.Component {
         
         private void Start() {
             Assert.AreNotEqual(-1, Id, "Id is not set");
-            var body = new Body(Id, BodyType);
+            var body = new Body(Id, BodyType, Material.Material);
             body.Transform = new Dynamic.Transform(new FixVec(fixX, fixY), fixAngle);
 
             var shape = this.GetShape();
@@ -78,10 +79,11 @@ namespace iShape.FixBox.Component {
             index = actor.Index;
             var bodyTr = actor.Body.Transform;
             var pos = bodyTr.Position.ToFloat2();
-            var angle = bodyTr.Angle.ToFloat();
+            var rad = bodyTr.Angle.ToFloat();
+            var degrees = math.degrees(rad);
 
             this.transform.position = new Vector3(pos.x, pos.y, 0);
-            this.transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+            this.transform.rotation = Quaternion.AngleAxis(degrees, Vector3.back);
         }
         
         private static long GetFirstFreeId() {
@@ -131,7 +133,10 @@ namespace iShape.FixBox.Component {
             var pos = t.position;
             fixX = pos.x.ToFix();
             fixY = pos.y.ToFix();
-            fixAngle = t.rotation.eulerAngles.z.ToFix();
+
+            float angleInDegrees = -t.rotation.eulerAngles.z;
+            float angleInRad = math.radians(angleInDegrees);
+            fixAngle = angleInRad.ToFix();
         }
 
         public void OnAfterDeserialize() { }

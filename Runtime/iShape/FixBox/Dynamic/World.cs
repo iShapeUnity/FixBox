@@ -9,8 +9,7 @@ namespace iShape.FixBox.Dynamic {
 
     public struct World {
         
-        public readonly WorldSettings Settings;
-        public readonly Boundary CollisionBoundary;
+        private readonly WorldSettings Settings;
         public readonly Boundary FreezeBoundary;
         public readonly bool IsDebug;
         public FixVec Gravity;
@@ -21,14 +20,13 @@ namespace iShape.FixBox.Dynamic {
         public double TimeStep => (1L << Settings.TimeScale).ToDouble();
 
         public World(Boundary boundary, WorldSettings settings, FixVec gravity, bool isDebug, Allocator allocator) {
-            CollisionBoundary = boundary;
             FreezeBoundary = new Boundary(boundary.Min - new FixVec(settings.FreezeMargin, settings.FreezeMargin), boundary.Max + new FixVec(settings.FreezeMargin, settings.FreezeMargin));
             Settings = settings;
             Gravity = gravity;
             IsDebug = isDebug;
             
             bodyStore = new BodyStore(settings.LandCapacity, settings.PlayerCapacity, settings.BulletCapacity, allocator);
-            LandGrid = new GridSpace(CollisionBoundary, settings.GridSpaceFactor, allocator);
+            LandGrid = new GridSpace(boundary, settings.GridSpaceFactor, allocator);
         }
 
         public void Dispose() {
@@ -64,7 +62,6 @@ namespace iShape.FixBox.Dynamic {
                 // update players
 
                 for (int j = 0; j < players.Length; ++j) {
-
                     var player = players[j];
 
                     player.Iterate(bodyTimeScale, Gravity);
@@ -79,10 +76,12 @@ namespace iShape.FixBox.Dynamic {
                         int i = indexMask.Next();
                         var land = lands[i];
 
-                        this.Collide(new BodyHandler(j, player), new BodyHandler(i, land));
+                        if (ImpactSolver.CollideDynamicAndStatic(ref player, land)) {
+                            players[j] = player;
+                        }
                     }
                 }
-
+/*
                 // update bullets
 
                 for (int j = 0; j < bullets.Length; ++j) {
@@ -142,6 +141,7 @@ namespace iShape.FixBox.Dynamic {
                         }
                     }
                 }
+*/
             }
         }
 
@@ -161,6 +161,9 @@ namespace iShape.FixBox.Dynamic {
 
             var isLand = body.Type == BodyType.land && body.Shape.IsNotEmpty;
             if (isLand) {
+                if (!bodyStore.IsLast(index)) {
+                    LandGrid.AddPlace(index.Index);
+                }
                 LandGrid.Set(body.Boundary, index.Index);
             }
 

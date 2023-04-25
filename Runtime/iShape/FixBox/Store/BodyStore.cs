@@ -39,21 +39,6 @@ namespace iShape.FixBox.Store {
                 _ => bulletList.Set(actor)
             };
         }
-        
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void SetBody(BodyHandler handler) {
-            switch (handler.Body.Type) {
-                case BodyType.land:
-                    landList.Items[handler.Index] = handler.Body;
-                    break;
-                case BodyType.player:
-                    playerList.Items[handler.Index] = handler.Body;
-                    break;
-                default:
-                    bulletList.Items[handler.Index] = handler.Body;
-                    break;
-            }
-        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public BodyIndex AddBody(Body body) {
@@ -76,6 +61,18 @@ namespace iShape.FixBox.Store {
                 default:
                     bulletList.Remove(index);
                     break;
+            }
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool IsLast(BodyIndex index) {
+            switch (index.Type) {
+                case BodyType.land:
+                    return landList.Items.Length == index.Index + 1;
+                case BodyType.player:
+                    return playerList.Items.Length == index.Index + 1;
+                default:
+                    return bulletList.Items.Length == index.Index + 1;
             }
         }
     }
