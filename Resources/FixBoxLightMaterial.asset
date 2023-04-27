@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: adb526e1bc794b4d9a685e30a1e50e2f, type: 3}
+  m_Name: FixBoxLightMaterial
+  m_EditorClassIdentifier: 
+  Bounce: 0.5
+  Friction: 0.5
+  Density: 0.1

@@ -4,6 +4,7 @@ using iShape.FixFloat;
 namespace iShape.FixBox.Dynamic {
 
     public readonly struct Velocity {
+        
         public static readonly Velocity Zero = new Velocity(FixVec.Zero);
     
         public readonly FixVec Linear;

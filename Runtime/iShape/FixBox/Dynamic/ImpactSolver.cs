@@ -26,10 +26,11 @@ namespace iShape.FixBox.Dynamic {
             var kab = math.max(a.Material.Bounce, b.Material.Bounce);
             
             var bV1 = b.Velocity.Linear;
+            
             // relative velocity
-            var V1 = aV1 - bV1;
+            var rV1 = aV1 - bV1;
 
-            var noMassImp = -(FixNumber.Unit + kab).Mul(V1.DotProduct(aNy)); 
+            var noMassImp = -(FixNumber.Unit + kab).Mul(rV1.DotProduct(aNy)); 
             
             // new linear velocity
             var adV = noMassImp * aNy;

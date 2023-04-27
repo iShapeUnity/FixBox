@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using iShape.FixBox.Collider;
 using iShape.FixFloat;
@@ -57,6 +58,14 @@ namespace iShape.FixBox.Dynamic {
             Velocity = Velocity.Apply(timeScale, Gravity);
             Transform = Transform.Apply(Velocity, timeScale);
             Boundary = Transform.ToWorld(Shape.Boundary);
+        }
+    }
+    
+    public class BodyIdComparer : IComparer<Body>
+    {
+        public int Compare(Body a, Body b)
+        {
+            return a.Id.CompareTo(b.Id);
         }
     }
 

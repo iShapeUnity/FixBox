@@ -1,12 +1,10 @@
 using System.Collections.Generic;
 using iShape.FixBox.Collider;
-using iShape.FixBox.Render;
 using iShape.FixBox.Dynamic;
 using iShape.FixBox.Store;
 using iShape.FixFloat;
 using Unity.Mathematics;
 using UnityEngine;
-using UnityEngine.Assertions;
 
 namespace iShape.FixBox.Component {
 
@@ -25,7 +23,6 @@ namespace iShape.FixBox.Component {
         [SerializeField]
         private long fixAngle;
         
-#if UNITY_EDITOR
         private void OnValidate() {
             if (!Application.isPlaying && Id == -1) {
                 Id = GetFirstFreeId();
@@ -35,10 +32,8 @@ namespace iShape.FixBox.Component {
                 Material = Resources.Load<FixBoxMaterial>("FixBoxDefaultMaterial");
             }
         }
-#endif
-        
-        private void Start() {
-            Assert.AreNotEqual(-1, Id, "Id is not set");
+
+        private Body CreateBody() {
             var body = new Body(Id, BodyType, Material.Material);
             body.Transform = new Dynamic.Transform(new FixVec(fixX, fixY), fixAngle);
 
@@ -46,13 +41,27 @@ namespace iShape.FixBox.Component {
             if (shape.IsNotEmpty) {
                 body.Attach(shape);
             }
-            
-            index = FixBoxSimulator.Shared.World.AddBody(body);
-            if (FixBoxSimulator.Shared.World.IsDebug) {
-                this.gameObject.DrawCollider();           
-            }
+
+            return body;
         }
+
+        public void FixBoxCreate(World world) {
+            var body = this.CreateBody();
+            index = world.AddBody(body);
+        }
+
+        public void FixBoxUpdate(World world) {
+            var actor = world.GetActor(index);
+            index = actor.Index;
+            var bodyTr = actor.Body.Transform;
+            var pos = bodyTr.Position.ToFloat2();
+            var rad = bodyTr.Angle.ToFloat();
+            var degrees = math.degrees(rad);
         
+            this.transform.position = new Vector3(pos.x, pos.y, 0);
+            this.transform.rotation = Quaternion.AngleAxis(degrees, Vector3.back);
+        }
+
         private Shape GetShape() {
             var circleCollider = gameObject.GetComponent<FixBoxCircleCollider>();
             if (circleCollider != null) {
@@ -68,22 +77,6 @@ namespace iShape.FixBox.Component {
             }
 
             return Shape.Empty;
-        }
-
-        private void Update() {
-            if (!FixBoxSimulator.Shared.isReady) {
-                return;
-            }
-
-            var actor = FixBoxSimulator.Shared.World.GetActor(index);
-            index = actor.Index;
-            var bodyTr = actor.Body.Transform;
-            var pos = bodyTr.Position.ToFloat2();
-            var rad = bodyTr.Angle.ToFloat();
-            var degrees = math.degrees(rad);
-
-            this.transform.position = new Vector3(pos.x, pos.y, 0);
-            this.transform.rotation = Quaternion.AngleAxis(degrees, Vector3.back);
         }
         
         private static long GetFirstFreeId() {

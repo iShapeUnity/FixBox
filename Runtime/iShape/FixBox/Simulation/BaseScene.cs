@@ -1,15 +1,16 @@
 using iShape.FixBox.Collider;
-using iShape.FixBox.Render;
+using iShape.FixBox.Component;
 using iShape.FixBox.Dynamic;
 using iShape.FixFloat;
 using Unity.Collections;
+using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 
-namespace iShape.FixBox.Component {
+namespace iShape.FixBox.Simulation {
 
-    public class FixBoxWorld: MonoBehaviour, ISerializationCallbackReceiver {
-
+    public abstract class BaseScene: MonoBehaviour, ISerializationCallbackReceiver {
+        
         public bool IsDebug = true;
         public bool IsDebugGridSpace = true;
         public FixBoxSettings Settings;
@@ -39,38 +40,48 @@ namespace iShape.FixBox.Component {
         
         [HideInInspector]
         public long FixGravityY = -10 * FixNumber.Unit;
-        
-        private FixBoxSimulator simulator;
-        
+
+        protected World world;
+        protected int currentTick;
+        protected int targetTick;
+        private JobHandle jobHandle;
+        private bool isJobRun;
+        private double timeStep;
+        private double startTime;
+
         private void Awake() {
             var a = FixWidth >> 1;
             var b = FixHeight >> 1;
             var Boundary = new Boundary(new FixVec(-a, -b), new FixVec(a, b));
 
-            simulator = new FixBoxSimulator(new World(Boundary, Settings.Settings, new FixVec(FixGravityX, FixGravityY), IsDebug, Allocator.Persistent));
-        }
-
-        private void Start() {
-            simulator.Start();
+            world = new World(Boundary, Settings.Settings, new FixVec(FixGravityX, FixGravityY), IsDebug, Allocator.Persistent);
+            timeStep = world.TimeStep;
+            DidWorldCreate();
         }
 
         private void Update() {
-            simulator.Update();
-            if (IsDebugGridSpace && FixBoxSimulator.Shared.isReady) {
-                this.gameObject.DrawLandGrid(simulator.World.LandGrid);
-            } else {
-                this.gameObject.RemoveLandGrid();
+            if (isJobRun && jobHandle.IsCompleted) {
+                CompleteJob();
+            }
+        }
+
+        private void LateUpdate() {
+            if (!isJobRun) {
+                double gameTime = Time.timeAsDouble - startTime;
+                targetTick = (int)(gameTime / timeStep + 0.5);
+                if (targetTick > currentTick) {
+                    StartJob();
+                }
             }
         }
         
-        private void LateUpdate() {
-            simulator.LateUpdate();
-        }
-
         private void OnDestroy() {
-            simulator.OnDestroy();
+            if (isJobRun) {
+                jobHandle.Complete();
+            }
+            world.Dispose();
         }
-
+        
         private void OnDrawGizmos() {
             Gizmos.matrix = transform.localToWorldMatrix;
 
@@ -84,6 +95,14 @@ namespace iShape.FixBox.Component {
             Gizmos.color = Color.blue;
             Gizmos.DrawWireCube(Vector3.zero, new Vector3(a + m, b + m, 0));
         }
+        
+        private void OnValidate() {
+            if (Settings == null) {
+                Settings = Resources.Load<FixBoxSettings>("FixBoxDefaultSettings");
+            }
+        }
+        
+        // Serialization
 
         public void OnBeforeSerialize() {
             if (!Application.isPlaying) {
@@ -97,14 +116,29 @@ namespace iShape.FixBox.Component {
 
         public void OnAfterDeserialize() {}
         
-#if UNITY_EDITOR
-        private void OnValidate() {
+        // Job
 
-            if (Settings == null) {
-                Settings = Resources.Load<FixBoxSettings>("FixBoxDefaultSettings");
-            }
+        private void StartJob() {
+            this.WillUpdate();
+            jobHandle = ExecuteJob();
+            isJobRun = true;
         }
-#endif
+        
+        private void CompleteJob() {
+            jobHandle.Complete();
+            isJobRun = false;
+            this.DidUpdate();
+            currentTick = targetTick;
+        }
+
+        protected abstract void DidWorldCreate();
+
+        protected abstract JobHandle ExecuteJob();
+
+        protected abstract void WillUpdate();
+
+        protected abstract void DidUpdate();
+
     }
 
 }

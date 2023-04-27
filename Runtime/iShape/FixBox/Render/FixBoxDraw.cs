@@ -17,7 +17,7 @@ namespace iShape.FixBox.Render {
 
         private const string DebugNode = "FixDebug"; 
         
-        public static void DrawCollider(this GameObject gameObject) {
+        public static void DrawDebugCollider(this GameObject gameObject) {
             var circleCollider = gameObject.GetComponent<FixBoxCircleCollider>();
             if (circleCollider != null) {
                 var radius = circleCollider.FixRadius;

@@ -11,7 +11,6 @@ namespace iShape.FixBox.Dynamic {
         
         private readonly WorldSettings Settings;
         public readonly Boundary FreezeBoundary;
-        public readonly bool IsDebug;
         public FixVec Gravity;
 
         internal BodyStore bodyStore;
@@ -23,7 +22,6 @@ namespace iShape.FixBox.Dynamic {
             FreezeBoundary = new Boundary(boundary.Min - new FixVec(settings.FreezeMargin, settings.FreezeMargin), boundary.Max + new FixVec(settings.FreezeMargin, settings.FreezeMargin));
             Settings = settings;
             Gravity = gravity;
-            IsDebug = isDebug;
             
             bodyStore = new BodyStore(settings.LandCapacity, settings.PlayerCapacity, settings.BulletCapacity, allocator);
             LandGrid = new GridSpace(boundary, settings.GridSpaceFactor, allocator);
@@ -151,6 +149,11 @@ namespace iShape.FixBox.Dynamic {
         }
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Actor GetActor(long id, BodyType bodyType) {
+            return bodyStore.GetActor(new BodyIndex(id, -1, -1, bodyType));
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetActor(Actor actor) {
             bodyStore.SetActor(actor);
         }
@@ -169,7 +172,7 @@ namespace iShape.FixBox.Dynamic {
 
             return index;
         }
-        
+
     }
 
 }
