@@ -26,8 +26,14 @@ namespace iShape.FixBox.Dynamic {
             var bV1 = b.Velocity.Linear;
             var bW1 = b.Velocity.Angular;
             
+            // distance between center of Mass A to contact point
+            var aR = contact.Point - a.Transform.Position;
+            
+            // distance between center of Mass A to contact point
+            var bR = contact.Point - b.Transform.Position;
+            
             // relative velocity
-            var rV1 = aV1 - bV1 + (aW1 - bW1) * nt;
+            var rV1 = aV1 - bV1 + aR.CrossProduct(aW1) - bR.CrossProduct(bW1); 
 
             // only if getting closer
             if (rV1.DotProduct(n) > 0) {
@@ -36,9 +42,6 @@ namespace iShape.FixBox.Dynamic {
 
             // bounce coefficient A vs B
             var e = math.max(a.Material.Bounce, b.Material.Bounce);
-
-            // distance between center of Mass A to contact point
-            var aR = contact.Point - a.Transform.Position;
 
             // -(1 + e)
             var ke = -e - FixNumber.Unit;
@@ -63,15 +66,15 @@ namespace iShape.FixBox.Dynamic {
 
             // ignore if it to small
             if (sqrF >= 8) {
+                // friction coefficient A vs B, for performance 
+                // for performance use arithmetic mean instead of the geometric mean
+                var q = (a.Material.Friction + b.Material.Friction) >> 1;
+                
                 f = f.Normalize;
                 
                 var jNum = rV1.DotProduct(f).Mul(ke);
                 var jDen = a.InvMass + aR.CrossProduct(f).Sqr().Mul(a.InvInertia);
                 var j = jNum.Div(jDen);
-                
-                // friction coefficient A vs B, for performance 
-                // for performance use arithmetic mean instead of the geometric mean
-                var q = (a.Material.Friction + b.Material.Friction) >> 1;
 
                 // can not be more then original impulse
                 var maxFi = i.Mul(q);
@@ -82,8 +85,8 @@ namespace iShape.FixBox.Dynamic {
                 aV2 += dv;
             
                 // new angular velocity
-                var dw = aR.CrossProduct(f).Mul(j).Mul(a.InvInertia); 
-                aW2 += dw;
+                var dw = aR.CrossProduct(f).Mul(j).Mul(a.InvInertia);
+                aW2 += dw >> 1;;
             }
 
 
