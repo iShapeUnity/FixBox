@@ -118,10 +118,7 @@ namespace iShape.FixBox.Collider {
             
             // If the center is inside the polygon ...
             if (separation < 0) {
-                return new Contact(faceCenter, delta, ContactType.Inside) {
-                    A = new Contact.BodyPoint(n1.Reverse, 0),
-                    B = new Contact.BodyPoint(n1, circle.Radius)
-                };
+                return new Contact(faceCenter, n1, delta, ContactType.Inside);
             }
 
             // Compute barycentric coordinates
@@ -135,10 +132,7 @@ namespace iShape.FixBox.Collider {
                 }
 
                 var nB = (circle.Center - v1).Normalize;
-                return new Contact(v1, delta, ContactType.Collide) {
-                    A = new Contact.BodyPoint(nB.Reverse, 0),
-                    B = new Contact.BodyPoint(nB, circle.Radius)
-                };
+                return new Contact(v1, nB, delta, ContactType.Collide);
             }
 
             long u2 = (circle.Center - v2).DotProduct(v1 - v2);
@@ -149,10 +143,7 @@ namespace iShape.FixBox.Collider {
                 }
                 
                 var nB = (circle.Center - v2).Normalize;
-                return new Contact(v2, delta, ContactType.Collide) {
-                    A = new Contact.BodyPoint(nB.Reverse, 0),
-                    B = new Contact.BodyPoint(nB, circle.Radius)
-                };
+                return new Contact(v2, nB, delta, ContactType.Collide);
             }
 
             long sc = (circle.Center - faceCenter).DotProduct(n1);
@@ -163,10 +154,7 @@ namespace iShape.FixBox.Collider {
             long dc = (circle.Center - v2).DotProduct(n1);
             FixVec m = circle.Center - dc * n1;
 
-            return new Contact(m, delta, ContactType.Collide) {
-                A = new Contact.BodyPoint(n1.Reverse, 0),
-                B = new Contact.BodyPoint(n1, circle.Radius)
-            };
+            return new Contact(m, n1, delta, ContactType.Collide);
         }
     }
 

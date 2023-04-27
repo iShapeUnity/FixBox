@@ -15,6 +15,7 @@ namespace iShape.FixBox.Dynamic {
         public long InvMass;
         public long Mass;
         public long Inertia;
+        public long InvInertia;
         public Velocity Velocity;
         public Transform Transform;
         public Boundary Boundary;
@@ -30,6 +31,7 @@ namespace iShape.FixBox.Dynamic {
             InvMass = 0;
             Mass = 0;
             Inertia = 0;
+            InvInertia = 0;
             Velocity = Velocity.Zero;
             Transform = Transform.Zero;
             Boundary = Boundary.Zero;
@@ -43,6 +45,7 @@ namespace iShape.FixBox.Dynamic {
                 Mass = shape.Area.Mul(Material.Density);
                 InvMass = FixNumber.Unit.Div(Mass);
                 Inertia = shape.Inertia.Mul(Material.Density);
+                InvInertia = FixNumber.Unit.Div(Inertia);
             }
             Boundary = Transform.ToWorld(shape.Boundary);
         }

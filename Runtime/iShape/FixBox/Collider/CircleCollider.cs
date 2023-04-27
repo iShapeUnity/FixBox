@@ -40,18 +40,12 @@ namespace iShape.FixBox.Collider {
 
                     var nA = dv.Normalize;
                     
-                    return new Contact(p, 0, ContactType.Collide) {
-                        A = new Contact.BodyPoint(nA, Radius),
-                        B = new Contact.BodyPoint(nA.Reverse, circle.Radius)
-                    };
+                    return new Contact(p, nA, 0, ContactType.Collide);
                 }
                 else
                 {
                     FixVec p = (ca + cb).Half;
-                    return new Contact(p, 0, ContactType.Inside) {
-                        A = new Contact.BodyPoint(FixVec.Zero, Radius),
-                        B = new Contact.BodyPoint(FixVec.Zero, circle.Radius)
-                    };
+                    return new Contact(p, FixVec.Zero, 0, ContactType.Inside);
                 }
             }
             else

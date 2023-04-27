@@ -59,7 +59,7 @@ namespace iShape.FixBox.Component {
             var degrees = math.degrees(rad);
         
             this.transform.position = new Vector3(pos.x, pos.y, 0);
-            this.transform.rotation = Quaternion.AngleAxis(degrees, Vector3.back);
+            this.transform.rotation = Quaternion.AngleAxis(degrees, Vector3.forward);
         }
 
         private Shape GetShape() {
@@ -105,7 +105,7 @@ namespace iShape.FixBox.Component {
                 foreach (FixBoxBody fixBoxBody in fixIdList) {
                     id = NextFreeId(idSet, id);
                     fixBoxBody.Id = id;
-                    UnityEngine.Debug.LogWarning("Body " + fixBoxBody.gameObject.name + " id was updated to " + id);
+                    Debug.LogWarning("Body " + fixBoxBody.gameObject.name + " id was updated to " + id);
                     id += 1;
                 }
             }
@@ -127,7 +127,7 @@ namespace iShape.FixBox.Component {
             fixX = pos.x.ToFix();
             fixY = pos.y.ToFix();
 
-            float angleInDegrees = -t.rotation.eulerAngles.z;
+            float angleInDegrees = t.rotation.eulerAngles.z;
             float angleInRad = math.radians(angleInDegrees);
             fixAngle = angleInRad.ToFix();
         }

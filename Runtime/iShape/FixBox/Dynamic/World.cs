@@ -4,6 +4,7 @@ using iShape.FixBox.Collision;
 using iShape.FixBox.Store;
 using iShape.FixFloat;
 using Unity.Collections;
+using Unity.Mathematics;
 
 namespace iShape.FixBox.Dynamic {
 
@@ -17,6 +18,9 @@ namespace iShape.FixBox.Dynamic {
         public GridSpace LandGrid;
 
         public double TimeStep => (1L << Settings.TimeScale).ToDouble();
+        private readonly int timeScale;
+        private readonly int bodyTimeScale;
+        private readonly int bodySteps;
 
         public World(Boundary boundary, WorldSettings settings, FixVec gravity, bool isDebug, Allocator allocator) {
             FreezeBoundary = new Boundary(boundary.Min - new FixVec(settings.FreezeMargin, settings.FreezeMargin), boundary.Max + new FixVec(settings.FreezeMargin, settings.FreezeMargin));
@@ -25,6 +29,10 @@ namespace iShape.FixBox.Dynamic {
             
             bodyStore = new BodyStore(settings.LandCapacity, settings.PlayerCapacity, settings.BulletCapacity, allocator);
             LandGrid = new GridSpace(boundary, settings.GridSpaceFactor, allocator);
+            
+            timeScale = 10 - Settings.TimeScale;
+            bodyTimeScale = 10 - math.min(Settings.TimeScale, Settings.BodyTimeScale);
+            bodySteps = 1 << (Settings.TimeScale - Settings.BodyTimeScale);
         }
 
         public void Dispose() {
@@ -33,8 +41,6 @@ namespace iShape.FixBox.Dynamic {
         }
 
         public void Iterate() {
-            var timeScale = 10 - Settings.TimeScale;
-
             // update lands first
 
             var lands = bodyStore.landList.Items;
@@ -49,9 +55,6 @@ namespace iShape.FixBox.Dynamic {
             }
 
             // update players
-
-            var bodyTimeScale = 10 - Settings.BodyTimeScale;
-            var bodySteps = 1 << (Settings.TimeScale - Settings.BodyTimeScale);
 
             var players = bodyStore.playerList.Items;
             var bullets = bodyStore.bulletList.Items;

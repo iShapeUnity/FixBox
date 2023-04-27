@@ -34,22 +34,22 @@ namespace iShape.FixBox.Dynamic {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public FixVec ToLocal(FixVec point) {
-            return rotator.RotateForward(point - Position);
+            return rotator.RotateBack(point - Position);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public FixVec ToWorld(FixVec point) {
-            return rotator.RotateBack(point) + Position;
+            return rotator.RotateForward(point) + Position;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public FixVec ToLocalVector(FixVec vector) {
-            return rotator.RotateForward(vector);
+            return rotator.RotateBack(vector);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public FixVec ToWorldVector(FixVec vector) {
-            return rotator.RotateBack(vector);
+            return rotator.RotateForward(vector);
         }
 
         public Boundary ToWorld(Boundary boundary) {
@@ -79,12 +79,9 @@ namespace iShape.FixBox.Dynamic {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Contact ToWorld(Contact contact) {
             FixVec point = ToWorld(contact.Point);
-            FixVec normalA = ToWorldVector(contact.A.Normal);
+            FixVec normal = ToWorldVector(contact.Normal);
 
-            return new Contact(point, contact.Delta, contact.Type) {
-                A = new Contact.BodyPoint(normalA, contact.A.Radius),
-                B = new Contact.BodyPoint(normalA.Reverse, contact.B.Radius)
-            };
+            return new Contact(point, normal, contact.Penetration, contact.Type);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
