@@ -1,4 +1,4 @@
-using iShape.FixBox.Collision;
+using iShape.FixBox.Dynamic;
 using iShape.FixFloat;
 using Unity.Collections;
 using UnityEngine.Assertions;
@@ -78,84 +78,26 @@ namespace iShape.FixBox.Collider {
             Boundary = new Boundary(points: points);
         }
 
+        public ConvexCollider(Transform transform, ConvexCollider collider, Allocator allocator) {
+            int n = collider.Points.Length;
+            var points = new NativeArray<FixVec>(n, allocator);
+            var normals = new NativeArray<FixVec>(n, allocator);
+            for(int i = 0; i < n; ++i) {
+                points[i] = transform.ConvertAsPoint(collider.Points[i]);
+                normals[i] = transform.ConvertAsVector(collider.Normals[i]);
+            }
+
+            Points = points;
+            Normals = normals;
+            Boundary = collider.Boundary; // TODO remove box from convex
+            Center = transform.ConvertAsPoint(collider.Center);
+        }
+        
         public void Dispose() {
             Points.Dispose();
             Normals.Dispose();
         }
-        
-        // Do not work correctly with degenerate points
-        public Contact Collide(CircleCollider circle) {
-            // Find the min separating edge.
-            int normalIndex = 0;
-            long separation = long.MinValue;
 
-            long r = circle.Radius + 100;
-
-            for(int i = 0; i < Points.Length; ++i) {
-                FixVec d = circle.Center - Points[i];
-                long s = Normals[i].DotProduct(d);
-
-                if (s > r) {
-                    return Contact.Outside;
-                }
-
-                if (s > separation) {
-                    separation = s;
-                    normalIndex = i;
-                }
-            }
-
-            // Vertices that subtend the incident face.
-            int vertIndex1 = normalIndex;
-            int vertIndex2 = (vertIndex1 + 1) % Points.Length;
-            FixVec v1 = Points[vertIndex1];
-            FixVec v2 = Points[vertIndex2];
-            FixVec n1 = Normals[vertIndex1];
-
-            FixVec faceCenter = v1.Middle(v2);
-
-            long delta = circle.Radius - separation;
-            
-            // If the center is inside the polygon ...
-            if (separation < 0) {
-                return new Contact(faceCenter, n1, delta, ContactType.Inside);
-            }
-
-            // Compute barycentric coordinates
-            long sqrRadius = circle.Radius.Sqr();
-
-            long u1 = (circle.Center - v1).DotProduct(v2 - v1);
-
-            if (u1 <= 0) {
-                if (circle.Center.SqrDistance(v1) > sqrRadius) {
-                    return Contact.Outside;
-                }
-
-                var nB = (circle.Center - v1).Normalize;
-                return new Contact(v1, nB, delta, ContactType.Collide);
-            }
-
-            long u2 = (circle.Center - v2).DotProduct(v1 - v2);
-
-            if (u2 <= 0) {
-                if (circle.Center.SqrDistance(v2) > sqrRadius) {
-                    return Contact.Outside;
-                }
-                
-                var nB = (circle.Center - v2).Normalize;
-                return new Contact(v2, nB, delta, ContactType.Collide);
-            }
-
-            long sc = (circle.Center - faceCenter).DotProduct(n1);
-            if (sc > circle.Radius) {
-                return Contact.Outside;
-            }
-
-            long dc = (circle.Center - v2).DotProduct(n1);
-            FixVec m = circle.Center - dc * n1;
-
-            return new Contact(m, n1, delta, ContactType.Collide);
-        }
     }
 
 }

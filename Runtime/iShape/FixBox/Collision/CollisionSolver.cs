@@ -30,7 +30,7 @@ namespace iShape.FixBox.Collision {
             var circleA = new CircleCollider(center: a.Transform.Position, radius: a.Shape.Radius);
             var circleB = new CircleCollider(center: b.Transform.Position, radius: b.Shape.Radius);
 
-            return circleA.Collide(circleB);
+            return ColliderSolver_CircleToCircle.Collide(circleA, circleB);
         }
         
         private static Contact CollidePolygonAndCircle(Body a, Body b) {
@@ -44,23 +44,13 @@ namespace iShape.FixBox.Collision {
         private static Contact CollideRectAndCircle(Body a, Body b) {
             var rect = new ConvexCollider(a.Shape.Size, Allocator.Temp);
 
-            var pos = a.Transform.ToLocal(b.Transform.Position);
-            var circle = new CircleCollider(center: pos, radius: b.Shape.Radius);
+            var pos = a.Transform.Position - b.Transform.Position;
+            var circle = new CircleCollider(pos, b.Shape.Radius);
             
-            var contact = rect.Collide(circle);
+            var contact = ColliderSolver_ConvexToCircle.Collide(circle, rect);
             rect.Dispose();
 
-            return a.Transform.ToWorld(contact);
-        }
-
-        private static Contact CollideConvexAndCircle(Body a, Body b) {
-            // var pos = a.Transform.ToLocal(b.Transform.Position);
-            // var circleB = new CircleCollider(center: pos, radius: b.Shape.Radius);
-            //
-            // var contact = a.Shape.colliders[0].Collide(circleB);
-            //
-            // return a.Transform.ToWorld(contact);
-            return Contact.Outside;
+            return a.Transform.Convert(contact);
         }
 
         private static Contact CollideComplexAndCircle(Body a, Body b) {
@@ -68,6 +58,18 @@ namespace iShape.FixBox.Collision {
         }
         
         private static Contact CollidePolygons(Body a, Body b) {
+            if (a.Shape.Form == Form.rect && b.Shape.Form == Form.rect) {
+                var rectA = new ConvexCollider(a.Shape.Size, Allocator.Temp);
+                var rectB = new ConvexCollider(b.Shape.Size, Allocator.Temp);
+
+                var contact = ColliderSolver_ConvexToConvex.Collide(rectA, rectB, a.Transform, b.Transform);
+                
+                rectA.Dispose();
+                rectB.Dispose();
+                
+                return contact;
+            }
+
             return Contact.Outside;
         }
     }

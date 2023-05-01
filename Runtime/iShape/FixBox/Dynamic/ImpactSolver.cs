@@ -16,9 +16,6 @@ namespace iShape.FixBox.Dynamic {
             // normal to contact point
             var n = contact.Normal;
             
-            // ortho to n 
-            var nt = new FixVec(n.y, -n.x);
-            
             // start linear and angular velocity for A and B
             var aV1 = a.Velocity.Linear;
             var aW1 = a.Velocity.Angular;
@@ -81,12 +78,10 @@ namespace iShape.FixBox.Dynamic {
                 j = math.clamp(j, -maxFi, maxFi);
                 
                 // new linear velocity
-                var dv = j.Mul(a.InvMass) * f; 
-                aV2 += dv;
+                aV2 += j.Mul(a.InvMass) * f;
             
                 // new angular velocity
-                var dw = aR.CrossProduct(f).Mul(j).Mul(a.InvInertia);
-                aW2 += dw >> 1;;
+                aW2 += aR.CrossProduct(f).Mul(j).Mul(a.InvInertia);
             }
 
 

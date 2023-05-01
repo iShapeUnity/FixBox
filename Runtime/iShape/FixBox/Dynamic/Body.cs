@@ -47,20 +47,20 @@ namespace iShape.FixBox.Dynamic {
                 Inertia = shape.Inertia.Mul(Material.Density);
                 InvInertia = FixNumber.Unit.Div(Inertia);
             }
-            Boundary = Transform.ToWorld(shape.Boundary);
+            Boundary = Transform.Convert(shape.Boundary);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Iterate(int timeScale) {
             Transform = Transform.Apply(Velocity, timeScale);
-            Boundary = Transform.ToWorld(Shape.Boundary);
+            Boundary = Transform.Convert(Shape.Boundary);
         }
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Iterate(int timeScale, FixVec Gravity) {
             Velocity = Velocity.Apply(timeScale, Gravity);
             Transform = Transform.Apply(Velocity, timeScale);
-            Boundary = Transform.ToWorld(Shape.Boundary);
+            Boundary = Transform.Convert(Shape.Boundary);
         }
     }
     

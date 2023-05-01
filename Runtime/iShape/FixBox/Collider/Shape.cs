@@ -33,7 +33,7 @@ namespace iShape.FixBox.Collider {
             Form = Form.circle;
             Boundary = new Boundary(radius);
             long rr = radius.Sqr();
-            Area = FixNumber.Pi.Mul(rr);
+            Area = FixNumber.PI.Mul(rr);
             Inertia = Area.Mul(rr) / 2;
         }
         
