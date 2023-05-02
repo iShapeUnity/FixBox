@@ -67,6 +67,8 @@ namespace iShape.FixBox.Collision {
                 rectA.Dispose();
                 rectB.Dispose();
                 
+                contact.Log();
+                
                 return contact;
             }
 

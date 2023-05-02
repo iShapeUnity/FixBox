@@ -86,7 +86,7 @@ namespace iShape.FixBox.Dynamic {
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Transform Apply(FixVec delta) {
-            return new Transform(Position + delta, Angle, Rotator);
+            return new Transform(Position - delta, Angle, Rotator);
         }
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

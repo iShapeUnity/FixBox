@@ -18,7 +18,7 @@
     "versionDefines": [
         {
             "name": "com.ishape.fixfloat",
-            "expression": "0.0.1"
+            "expression": "0.0.2"
         },
         {
             "name": "com.ishape.mesh2d",

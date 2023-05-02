@@ -87,9 +87,9 @@ namespace iShape.FixBox.Dynamic {
 
             // apply result
             a.Velocity = new Velocity(aV2, aW2);
-            
+
             // fix contact delta
-            a.Transform = a.Transform.Apply(contact.Penetration * n);
+            a.Transform = a.Transform.Apply(contact.Correction);
 
             return true;
         }
