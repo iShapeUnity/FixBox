@@ -11,6 +11,14 @@ To use iShape.FixBox in your Unity project, follow these steps:
 - In the top menu, select "Window" > "Package Manager".
 - Click on the "+" button in the top-left corner of the Package Manager window.
 - Select "Add package from git URL...".
+- Enter the following URL: https://github.com/iShapeUnity/FixFloat.git
+- Click the "Add" button.
+- Wait for the package to be imported.
+- After repeat all for https://github.com/iShapeUnity/Mesh2d.git
 - Enter the following URL: https://github.com/iShapeUnity/FixBox.git
 - Click the "Add" button.
 - Wait for the package to be imported.
+
+## Demo App
+
+Demo App could be found at https://github.com/iShapeUnity/FixBoxDebug
