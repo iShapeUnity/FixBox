@@ -17,7 +17,7 @@ namespace iShape.FixBox.Collision {
         public readonly FixVec Normal;
         public readonly long Penetration;
         public readonly ContactType Type;
-        public FixVec Correction => ((Penetration * 1024) >> 10) * Normal;
+        public FixVec Correction => Penetration * Normal;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Contact(FixVec point, FixVec normal, long penetration, ContactType type) {

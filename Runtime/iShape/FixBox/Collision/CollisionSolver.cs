@@ -1,5 +1,6 @@
 using iShape.FixBox.Collider;
 using iShape.FixBox.Dynamic;
+using iShape.FixFloat;
 using Unity.Collections;
 
 namespace iShape.FixBox.Collision {
@@ -44,7 +45,9 @@ namespace iShape.FixBox.Collision {
         private static Contact CollideRectAndCircle(Body a, Body b) {
             var rect = new ConvexCollider(a.Shape.Size, Allocator.Temp);
 
-            var pos = a.Transform.Position - b.Transform.Position;
+            // var baT = Transform.ConvertFromBtoA(b.Transform, a.Transform);
+            // var pos = baT.ConvertAsPoint(FixVec.Zero);
+            var pos = Transform.ConvertZeroPointBtoA(b.Transform, a.Transform);
             var circle = new CircleCollider(pos, b.Shape.Radius);
             
             var contact = ColliderSolver_ConvexToCircle.Collide(circle, rect);

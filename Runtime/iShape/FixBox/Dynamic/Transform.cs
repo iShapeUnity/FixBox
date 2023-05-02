@@ -86,7 +86,7 @@ namespace iShape.FixBox.Dynamic {
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Transform Apply(FixVec delta) {
-            return new Transform(Position - delta, Angle, Rotator);
+            return new Transform(Position + delta, Angle, Rotator);
         }
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -103,6 +103,20 @@ namespace iShape.FixBox.Dynamic {
             var y = (cosA * dv.y - sinA * dv.x) >> 10;
 
             return new Transform(new FixVec(x, y), ang, rot);
+        }
+        
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static FixVec ConvertZeroPointBtoA(Transform b, Transform a) {
+            var cosA = a.Rotator.x;
+            var sinA = a.Rotator.y;
+
+            var dv = b.Position - a.Position;
+
+            var x = (cosA * dv.x + sinA * dv.y) >> 10;
+            var y = (cosA * dv.y - sinA * dv.x) >> 10;
+
+            return new FixVec(x, y);
         }
     }
 
