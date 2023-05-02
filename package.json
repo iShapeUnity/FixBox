@@ -1,6 +1,6 @@
 {
   "name": "com.ishape.fixbox",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "displayName": "iShape.FixBox",
   "description": "Fix physics simulation",
   "unity": "2022.2",
