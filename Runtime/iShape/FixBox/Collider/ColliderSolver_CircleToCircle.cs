@@ -30,12 +30,12 @@ namespace iShape.FixBox.Collider {
 
                     var nA = dv.Normalize;
                     
-                    return new Contact(p, nA, 0, ContactType.Collide);
+                    return new Contact(p, nA, 0, 1, ContactType.Collide);
                 }
                 else
                 {
                     FixVec p = (ca + cb).Half;
-                    return new Contact(p, FixVec.Zero, 0, ContactType.Inside);
+                    return new Contact(p, FixVec.Zero, 0, 1, ContactType.Inside);
                 }
             }
             else

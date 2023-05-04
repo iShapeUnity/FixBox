@@ -7,7 +7,7 @@ using Unity.Collections;
 namespace iShape.FixBox.Collider {
 
     public static class ColliderSolver_ConvexToConvex {
-
+        
         public static Contact Collide(ConvexCollider a, ConvexCollider b, Transform tA, Transform tB) {
             Contact contact;
             Transform t;
@@ -19,7 +19,7 @@ namespace iShape.FixBox.Collider {
 
                 contact = Collide(a, b2);
                 b2.Dispose();
-                
+
                 t = tA;
             } else {
                 // work in b coord system
@@ -34,63 +34,82 @@ namespace iShape.FixBox.Collider {
             }
 
             if (contact.Type != ContactType.Collide) {
-                return contact;
+                return Contact.Outside;
             }
+            
             // return in global coord system
             return t.Convert(contact);
         }
 
         
         private static Contact Collide(ConvexCollider a, ConvexCollider b) {
-            var cA = FindMaxSeparation(a, b);
-            if (cA.Penetration > 10) {
-                return Contact.Outside;
-            }
+            var cA = FindContact(a, b);
+            var cB = FindContact(b, a);
+            
+            if (cA.Type == ContactType.Collide && cB.Type == ContactType.Collide) {
+                var middle = cA.Point.Middle(cB.Point);
+                var penetration = (cA.Penetration + cB.Penetration) >> 1;
+                var count = cA.Count + cB.Count >> 1;
+                FixVec normal = cB.Penetration < cA.Penetration ? cB.Normal : cA.Normal;
 
-            var cB = FindMaxSeparation(b, a);
-
-            if (cB.Penetration > cA.Penetration) {
-                // A penetrate B
+                return new Contact(middle, normal, penetration, count, ContactType.Collide);
+            } else if (cB.Type == ContactType.Collide) {
                 return cB;
-            } else {
-                // A penetrate B
+            } else if (cA.Type == ContactType.Collide) {
                 return cA;
+            } else {
+                return Contact.Outside;
             }
         }
         
-        private static Contact FindMaxSeparation(ConvexCollider a, ConvexCollider b) {
-            var maxSep = long.MinValue;
-            var bestNormal = FixVec.Zero;
-            var bestVert = FixVec.Zero;
-        
-            for(int i = 0; i < a.Points.Length; ++i) {
-                var na = a.Normals[i];
-                var pa = a.Points[i];
+        private static Contact FindContact(ConvexCollider a, ConvexCollider b) {
+            var contact_0 = new Contact(FixVec.Zero, FixVec.Zero, long.MaxValue, 1, ContactType.Outside);
+            var contact_1 = new Contact(FixVec.Zero, FixVec.Zero, long.MaxValue, 1, ContactType.Outside);
 
-                var iMinSep = long.MaxValue;
-                var vert = FixVec.Zero;
+            for (int i = 0; i < b.Points.Length; ++i) {
+                var vert = b.Points[i];
+                if (!a.IsContain(vert))
+                {
+                    continue;
+                }
+
+                var sv = long.MinValue;
+                var nv = FixVec.Zero;
             
-                for(int j = 0; j < b.Points.Length; ++j) {
-                    var pb = b.Points[j];
-                    var dp = pb - pa;
-                    var s = na.DotProduct(dp);
+                for (int j = 0; j < a.Points.Length; ++j) {
+                    var n = a.Normals[j];
+                    var p = a.Points[j];
 
-                    if (s < iMinSep) {
-                        iMinSep = s;
-                        vert = pb;
+                    var d = vert - p;
+                    var s = n.DotProduct(d);
+                
+                    if (s > sv) {
+                        sv = s;
+                        nv = n;
                     }
                 }
             
-                if (iMinSep > maxSep) {
-                    maxSep = iMinSep;
-                    bestNormal = na;
-                    bestVert = vert;
+                if (sv < contact_1.Penetration) {
+                    var newContact = new Contact(vert, nv, sv, 1, ContactType.Collide);
+
+                    if (newContact.Penetration < contact_0.Penetration) {
+                        contact_0 = newContact;
+                    } else {
+                        contact_1 = newContact;
+                    }
                 }
-            
             }
-        
-            return new Contact(bestVert, bestNormal, maxSep, ContactType.Collide);
+            
+            if (contact_1.Type == ContactType.Collide) {
+                var mid = contact_0.Point.Middle(contact_1.Point);
+                return new Contact(mid, normal: contact_0.Normal, contact_0.Penetration, 2, ContactType.Collide);
+            } else if (contact_0.Type == ContactType.Collide) {
+                return contact_0;
+            } else {
+                return Contact.Outside;                
+            }
         }
+
     }
 
 }

@@ -5,12 +5,12 @@ using iShape.FixFloat;
 
 namespace iShape.FixBox.Collider {
 
-    public struct Boundary {
+    public readonly struct Boundary {
         
         public static readonly Boundary Zero = new Boundary(FixVec.Zero, FixVec.Zero);
 
-        public FixVec Min;
-        public FixVec Max;
+        public readonly FixVec Min;
+        public readonly FixVec Max;
 
         public FixVec Size => Max - Min;
 
@@ -19,7 +19,7 @@ namespace iShape.FixBox.Collider {
             this.Min = min;
             this.Max = max;
         }
-
+        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Boundary(long radius) {
             Min = new FixVec(-radius, -radius);
@@ -85,6 +85,11 @@ namespace iShape.FixBox.Collider {
             }
 
             return true;
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool IsContain(FixVec p) {
+            return Min.x <= p.x && p.x <= Max.x && Min.y <= p.y && p.y <= Max.y;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

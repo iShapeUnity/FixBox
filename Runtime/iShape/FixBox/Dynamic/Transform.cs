@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using iShape.FixBox.Collider;
 using iShape.FixBox.Collision;
 using iShape.FixFloat;
+using UnityEngine;
 
 namespace iShape.FixBox.Dynamic {
 
@@ -43,9 +44,9 @@ namespace iShape.FixBox.Dynamic {
             if (Angle == 0) {
                 return boundary.Translate(delta: Position);
             } else {
-                FixVec a0 = new FixVec(boundary.Min.x, boundary.Min.y);
+                FixVec a0 = boundary.Min;
                 FixVec a1 = new FixVec(boundary.Min.x, boundary.Max.y);
-                FixVec a2 = new FixVec(boundary.Max.x, boundary.Max.y);
+                FixVec a2 = boundary.Max;
                 FixVec a3 = new FixVec(boundary.Max.x, boundary.Min.y);
 
                 FixVec b0 = ConvertAsPoint(a0);
@@ -59,7 +60,7 @@ namespace iShape.FixBox.Dynamic {
                 long maxX = Math.Max(Math.Max(b0.x, b1.x), Math.Max(b2.x, b3.x));
                 long maxY = Math.Max(Math.Max(b0.y, b1.y), Math.Max(b2.y, b3.y));
 
-                return new Boundary(min: new FixVec(minX, minY), max: new FixVec(maxX, maxY));
+                return new Boundary(new FixVec(minX, minY), new FixVec(maxX, maxY));
             }
         }
 
@@ -68,7 +69,7 @@ namespace iShape.FixBox.Dynamic {
             FixVec point = ConvertAsPoint(contact.Point);
             FixVec normal = ConvertAsVector(contact.Normal);
 
-            return new Contact(point, normal, contact.Penetration, contact.Type);
+            return new Contact(point, normal, contact.Penetration, contact.Count, contact.Type);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

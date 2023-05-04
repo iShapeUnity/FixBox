@@ -62,17 +62,17 @@ namespace iShape.FixBox.Dynamic {
             var sqrF = f.SqrLength;
 
             // ignore if it to small
-            if (sqrF >= 8) {
-                // friction coefficient A vs B, for performance 
-                // for performance use arithmetic mean instead of the geometric mean
-                var q = (a.Material.Friction + b.Material.Friction) >> 1;
-                
+            if (sqrF >= 1) {
                 f = f.Normalize;
                 
                 var jNum = rV1.DotProduct(f).Mul(ke);
                 var jDen = a.InvMass + aR.CrossProduct(f).Sqr().Mul(a.InvInertia);
                 var j = jNum.Div(jDen);
 
+                // friction coefficient A vs B, for performance 
+                // for performance use arithmetic mean instead of the geometric mean
+                var q = (a.Material.Friction + b.Material.Friction) >> 1;
+                
                 // can not be more then original impulse
                 var maxFi = i.Mul(q);
                 j = math.clamp(j, -maxFi, maxFi);
@@ -82,14 +82,25 @@ namespace iShape.FixBox.Dynamic {
             
                 // new angular velocity
                 aW2 += aR.CrossProduct(f).Mul(j).Mul(a.InvInertia);
+            } else if (contact.Count > 1 && contact.Penetration > -4) {
+                var vF = aV2.SqrLength;
+                var wF = math.abs(aW2);
+                if (vF < 100 && wF < 400) {
+                    // if body is near to stop, permanently stopping it
+                    aW2 = wF < 20 ? 0 : aW2 >> 1;
+                    aV2 = vF < 20 ? FixVec.Zero : aV2.Half;
+                }
             }
-
 
             // apply result
             a.Velocity = new Velocity(aV2, aW2);
-
-            // fix contact delta
-            a.Transform = a.Transform.Apply(contact.Correction);
+            
+            // contact.Log();
+            if (contact.Penetration != 0) {
+                var penetrationSign = (a.Transform.Position - contact.Point).DotProduct(contact.Normal) > 0;
+                // fix contact delta
+                a.Transform = a.Transform.Apply(contact.Correction(penetrationSign));                
+            }
 
             return true;
         }

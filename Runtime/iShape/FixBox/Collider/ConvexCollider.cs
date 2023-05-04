@@ -1,4 +1,5 @@
 using iShape.FixBox.Dynamic;
+using iShape.FixBox.Geometry;
 using iShape.FixFloat;
 using Unity.Collections;
 using UnityEngine.Assertions;
@@ -89,13 +90,21 @@ namespace iShape.FixBox.Collider {
 
             Points = points;
             Normals = normals;
-            Boundary = collider.Boundary; // TODO remove box from convex
+            Boundary = transform.Convert(collider.Boundary);
             Center = transform.ConvertAsPoint(collider.Center);
         }
         
         public void Dispose() {
             Points.Dispose();
             Normals.Dispose();
+        }
+
+        public bool IsContain(FixVec point) {
+            if (!Boundary.IsContain(point)) {
+                return false;
+            }
+
+            return Points.IsPointInsideConvexPolygon(point);
         }
 
     }
