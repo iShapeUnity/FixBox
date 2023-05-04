@@ -96,23 +96,25 @@ namespace iShape.FixBox.Dynamic {
                 }
 
                 // collide player vs player
-
+*/
                 if (Settings.IsPlayerVsPlayer && players.Length > 1) {
                     // TODO optimize
                     for (int j = 0; j < players.Length - 1; ++j) {
-                        var plA = players[j];
+                        var playerA = players[j];
                         for (int i = j + 1; i < players.Length; ++i) {
-                            var plB = players[i];
+                            var playerB = players[i];
 
                             // collide with player
-
-                            this.Collide(new BodyHandler(j, plA), new BodyHandler(i, plB));
+                            if (ImpactSolver.CollideDynamicAndDynamic(ref playerA, ref playerB)) {
+                                players[j] = playerA;
+                                players[i] = playerB;
+                            }
                         }
                     }
                 }
 
                 // collide player vs bullet
-
+/*
                 if (players.Length > 0 && bullets.Length > 0) {
 
                     // TODO optimize

@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c5c1f1da77448fda57ee4c8850b7f4e, type: 3}
   m_Name: FixBoxDefaultSettings
   m_EditorClassIdentifier: 
-  TimeScale: 2
-  BodyTimeScale: 1
+  TimeScale: 4
+  BodyTimeScale: 2
   IsBulletVsBullet: 0
-  IsPlayerVsPlayer: 0
+  IsPlayerVsPlayer: 1
   LandCapacity: 64
   PlayerCapacity: 32
   BulletCapacity: 64

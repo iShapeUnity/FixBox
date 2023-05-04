@@ -15,27 +15,41 @@ namespace iShape.FixBox.Collider {
 
             long sqrC = ca.SqrDistance(cb);
 
-            if ((ra + rb).Sqr() >= sqrC)
-            {
+            if ((ra + rb).Sqr() >= sqrC) {
+                long penetration = ra + rb - sqrC.Sqrt();
+                    
                 long sqrA = ra.Sqr();
                 long sqrB = rb.Sqr();
 
+                FixVec dv = ca - cb;
+                
                 if (sqrC >= sqrA && sqrC >= sqrB)
                 {
                     long k = (sqrB - sqrA + sqrC) / sqrC >> 1;
-
-                    FixVec dv = ca - cb;
 
                     FixVec p = cb + dv * k;
 
                     var nA = dv.Normalize;
                     
-                    return new Contact(p, nA, 0, 1, ContactType.Collide);
+                    return new Contact(
+                        p,
+                        nA,
+                        penetration,
+                        1,
+                        ContactType.Collide
+                        );
                 }
-                else
-                {
-                    FixVec p = (ca + cb).Half;
-                    return new Contact(p, FixVec.Zero, 0, 1, ContactType.Inside);
+                else {
+                    var p = sqrB > sqrA ? ca : cb;
+                    var n = dv.SqrLength != 0 ? dv.Normalize : new FixVec(0, FixNumber.Unit);
+                        
+                    return new Contact(
+                        p,
+                        n,
+                        penetration,
+                        1,
+                        ContactType.Inside
+                        );
                 }
             }
             else

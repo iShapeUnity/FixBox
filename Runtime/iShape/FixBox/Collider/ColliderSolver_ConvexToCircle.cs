@@ -34,13 +34,17 @@ namespace iShape.FixBox.Collider {
             FixVec v2 = convex.Points[vertIndex2];
             FixVec n1 = convex.Normals[vertIndex1];
 
-            FixVec faceCenter = v1.Middle(v2);
-
             long delta = circle.Radius - separation;
             
             // If the center is inside the polygon ...
             if (separation < 0) {
-                return new Contact(faceCenter, n1, delta, 1, ContactType.Inside);
+                return new Contact(
+                    circle.Center,
+                    n1,
+                    delta,
+                    1,
+                    ContactType.Inside
+                    );
             }
 
             // Compute barycentric coordinates
@@ -67,6 +71,8 @@ namespace iShape.FixBox.Collider {
                 var nB = (circle.Center - v2).Normalize;
                 return new Contact(v2, nB, delta,1, ContactType.Collide);
             }
+            
+            FixVec faceCenter = v1.Middle(v2);
 
             long sc = (circle.Center - faceCenter).DotProduct(n1);
             if (sc > circle.Radius) {
