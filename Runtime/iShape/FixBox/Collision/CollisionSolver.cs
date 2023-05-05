@@ -6,7 +6,10 @@ namespace iShape.FixBox.Collision {
 
     public static class CollisionSolver {
 
+        
         public static Contact Collide(Body a, Body b) {
+            // Normal is always look at A * <-| * B
+            
             if (!a.Boundary.IsCollide(b.Boundary)) {
                 return Contact.Outside;
             }
@@ -19,9 +22,9 @@ namespace iShape.FixBox.Collision {
                 }
             } else {
                 if (b.Shape.Form == Form.circle) {
-                    return CollidePolygonAndCircle(a, b);    
+                    return CollidePolygonAndCircle(a, b).NegativeNormal();    
                 } else {
-                    return CollidePolygons(b, a);
+                    return CollidePolygons(a, b);
                 }
             }
         }
@@ -30,7 +33,7 @@ namespace iShape.FixBox.Collision {
             var circleA = new CircleCollider(center: a.Transform.Position, radius: a.Shape.Radius);
             var circleB = new CircleCollider(center: b.Transform.Position, radius: b.Shape.Radius);
 
-            return ColliderSolver_CircleToCircle.Collide(circleA, circleB);
+            return CollisionSolver_CircleToCircle.Collide(circleA, circleB);
         }
         
         private static Contact CollidePolygonAndCircle(Body a, Body b) {
@@ -44,12 +47,10 @@ namespace iShape.FixBox.Collision {
         private static Contact CollideRectAndCircle(Body a, Body b) {
             var rect = new ConvexCollider(a.Shape.Size, Allocator.Temp);
 
-            // var baT = Transform.ConvertFromBtoA(b.Transform, a.Transform);
-            // var pos = baT.ConvertAsPoint(FixVec.Zero);
             var pos = Transform.ConvertZeroPointBtoA(b.Transform, a.Transform);
             var circle = new CircleCollider(pos, b.Shape.Radius);
             
-            var contact = ColliderSolver_ConvexToCircle.Collide(circle, rect);
+            var contact = CollisionSolver_ConvexToCircle.Collide(circle, rect);
             rect.Dispose();
 
             return a.Transform.Convert(contact);
@@ -64,7 +65,7 @@ namespace iShape.FixBox.Collision {
                 var rectA = new ConvexCollider(a.Shape.Size, Allocator.Temp);
                 var rectB = new ConvexCollider(b.Shape.Size, Allocator.Temp);
 
-                var contact = ColliderSolver_ConvexToConvex.Collide(rectA, rectB, a.Transform, b.Transform);
+                var contact = CollisionSolver_ConvexToConvex.Collide(rectA, rectB, a.Transform, b.Transform);
                 
                 rectA.Dispose();
                 rectB.Dispose();

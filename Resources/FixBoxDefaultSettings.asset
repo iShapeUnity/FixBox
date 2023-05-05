@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c5c1f1da77448fda57ee4c8850b7f4e, type: 3}
   m_Name: FixBoxDefaultSettings
   m_EditorClassIdentifier: 
-  TimeScale: 4
+  TimeStep: 16
   BodyTimeScale: 2
   IsBulletVsBullet: 0
   IsPlayerVsPlayer: 1

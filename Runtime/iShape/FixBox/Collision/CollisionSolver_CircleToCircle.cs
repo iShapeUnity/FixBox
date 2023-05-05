@@ -1,9 +1,9 @@
-using iShape.FixBox.Collision;
+using iShape.FixBox.Collider;
 using iShape.FixFloat;
 
-namespace iShape.FixBox.Collider {
+namespace iShape.FixBox.Collision {
 
-    public static class ColliderSolver_CircleToCircle {
+    public static class CollisionSolver_CircleToCircle {
         
         public static Contact Collide(CircleCollider a, CircleCollider b)
         {

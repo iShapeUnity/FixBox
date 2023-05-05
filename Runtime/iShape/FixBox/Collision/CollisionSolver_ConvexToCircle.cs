@@ -1,13 +1,13 @@
-using iShape.FixBox.Collision;
+using iShape.FixBox.Collider;
 using iShape.FixFloat;
 
-namespace iShape.FixBox.Collider {
+namespace iShape.FixBox.Collision {
 
-    public static class ColliderSolver_ConvexToCircle {
-        
+    public static class CollisionSolver_ConvexToCircle {
+
         // Do not work correctly with degenerate points
         public static Contact Collide(CircleCollider circle, ConvexCollider convex) {
-            var ciContact = ColliderSolver_CircleToCircle.Collide(circle, convex.CircleCollider);
+            var ciContact = CollisionSolver_CircleToCircle.Collide(circle, convex.CircleCollider);
             if (ciContact.Type != ContactType.Outside) {
                 return ciContact;
             }
@@ -16,7 +16,7 @@ namespace iShape.FixBox.Collider {
             int normalIndex = 0;
             long separation = long.MinValue;
 
-            long r = circle.Radius + 100;
+            long r = circle.Radius + 10; // TODO review this const
 
             for(int i = 0; i < convex.Points.Length; ++i) {
                 FixVec d = circle.Center - convex.Points[i];

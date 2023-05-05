@@ -1,7 +1,6 @@
 using iShape.FixBox.Collision;
 using iShape.FixFloat;
 using Unity.Mathematics;
-using UnityEngine;
 
 namespace iShape.FixBox.Dynamic {
 
@@ -9,14 +8,16 @@ namespace iShape.FixBox.Dynamic {
     public static class ImpactSolver {
         
         public static bool CollideDynamicAndStatic(ref Body a, Body b) {
+            if (!a.Boundary.IsCollide(b.Boundary)) {
+                return false;
+            }
+
+            // Normal is always look at A * <-| * B
             var contact = CollisionSolver.Collide(a, b);
             
             if (contact.Type == ContactType.Outside) {
                 return false;
             }
-            
-            // Debug.Log("---Start---");
-            // Debug.Log(a);
 
             // normal to contact point
             var n = contact.Normal;
@@ -35,11 +36,12 @@ namespace iShape.FixBox.Dynamic {
             var bR = contact.Point - b.Transform.Position;
             
             // relative velocity
-            var rV1 = aV1 - bV1 + aR.CrossProduct(aW1) - bR.CrossProduct(bW1); 
+            var rV1 = aV1 - bV1 + aR.CrossProduct(aW1) - bR.CrossProduct(bW1);
 
-            // Debug.Log("Relative: " + rV1 + " Factor: " + rV1.DotProduct(n));
+            var rV1proj = rV1.DotProduct(n);
+            
             // only if getting closer
-            if (rV1.DotProduct(n) > 0) {
+            if (rV1proj > 0) {
                 return false;
             }
 
@@ -53,7 +55,7 @@ namespace iShape.FixBox.Dynamic {
             // -(1 + e) * rV1 * n / (1 / Ma + (aR * t)^2 / aI)
             
             var aRn = aR.CrossProduct(n);
-            var iNum = rV1.DotProduct(n).Mul(ke);
+            var iNum = rV1proj.Mul(ke);
             var iDen = a.InvMass + aRn.Sqr().Mul(a.InvInertia);
             var i = iNum.Div(iDen); 
 
@@ -65,7 +67,7 @@ namespace iShape.FixBox.Dynamic {
 
             // tangent vector
             // leaving only the component that is parallel to the contact surface
-            var f = rV1 - n * rV1.DotProduct(n);
+            var f = rV1 - n * rV1proj;
             var sqrF = f.SqrLength;
 
             // ignore if it to small
@@ -95,7 +97,7 @@ namespace iShape.FixBox.Dynamic {
                 var wF = math.abs(aW2);
                 if (vF < 100 && wF < 400) {
                     // if body is near to stop, permanently stopping it
-                    aW2 = aW2 / 2;
+                    aW2 /= 2;
                     aV2 = aV2.Half;
                 }
             }
@@ -108,18 +110,22 @@ namespace iShape.FixBox.Dynamic {
             // Debug.Log(contact);
             
 
-            if (contact.Penetration != 0) {
-                var penetrationSign = (a.Transform.Position - b.Transform.Position).DotProduct(contact.Normal) > 0;
-                var correction = contact.Correction(penetrationSign);
-                // Debug.Log($"correction: {correction}");
-                // fix contact delta
-                a.Transform = a.Transform.Apply(correction);                
-            }
+            // if (contact.Penetration != 0) {
+            //     var penetrationSign = (a.Transform.Position - contact.Point).DotProduct(contact.Normal) > 0;
+            //     var correction = contact.Correction(penetrationSign);
+            //     // Debug.Log($"correction: {correction}");
+            //     // fix contact delta
+            //     a.Transform = a.Transform.Apply(correction);                
+            // }
 
             return true;
         }
         
         public static bool CollideDynamicAndDynamic(ref Body a, ref Body b) {
+            if (!a.Boundary.IsCollide(b.Boundary)) {
+                return false;
+            }
+            
             var contact = CollisionSolver.Collide(a, b);
             
             if (contact.Type == ContactType.Outside) {
@@ -141,12 +147,14 @@ namespace iShape.FixBox.Dynamic {
             
             // distance between center of Mass B to contact point
             var bR = contact.Point - b.Transform.Position;
-            
-            // relative velocity
-            var rV1 = aV1 - bV1 + aR.CrossProduct(aW1) - bR.CrossProduct(bW1); 
 
+            // relative velocity
+            var rV1 = aV1 - bV1 + aR.CrossProduct(aW1) - bR.CrossProduct(bW1);
+
+            var rV1proj = rV1.DotProduct(n);
+            
             // only if getting closer
-            if (rV1.DotProduct(n) > 0) {
+            if (rV1proj > 0) {
                 return false;
             }
 
@@ -161,7 +169,7 @@ namespace iShape.FixBox.Dynamic {
 
             var aRn = aR.CrossProduct(n);
             var bRn = bR.CrossProduct(n);
-            var iNum = rV1.DotProduct(n).Mul(ke);
+            var iNum = rV1proj.Mul(ke);
             var iDen = a.InvMass + b.InvMass + aRn.Sqr().Mul(a.InvInertia) + bRn.Sqr().Mul(b.InvInertia);
             var i = iNum.Div(iDen); 
 
@@ -175,7 +183,7 @@ namespace iShape.FixBox.Dynamic {
 
             // tangent vector
             // leaving only the component that is parallel to the contact surface
-            var f = rV1 - n * rV1.DotProduct(n);
+            var f = rV1 - n * rV1proj;
             var sqrF = f.SqrLength;
 
             // ignore if it to small
@@ -229,15 +237,16 @@ namespace iShape.FixBox.Dynamic {
             a.Velocity = new Velocity(aV2, aW2);
             b.Velocity = new Velocity(bV2, bW2);
             
-            if (contact.Penetration != 0) {
-                var penetrationSign = (a.Transform.Position - contact.Point).DotProduct(contact.Normal) > 0;
-                // fix contact delta
-                var kb = a.Mass.Div(a.Mass + b.Mass);
-                var ka = FixNumber.Unit - kb;
-                
-                a.Transform = a.Transform.Apply(contact.Correction(penetrationSign) * ka);
-                b.Transform = b.Transform.Apply(contact.Correction(!penetrationSign) * kb);
-            }
+            // if (contact.Penetration != 0) {
+            //     var penASign = (a.Transform.Position - contact.Point).DotProduct(contact.Normal) > 0;
+            //     var penBSign = (b.Transform.Position - contact.Point).DotProduct(contact.Normal) > 0;
+            //     // fix contact delta
+            //     var kb = a.Mass.Div(a.Mass + b.Mass);
+            //     var ka = FixNumber.Unit - kb;
+            //     
+            //     a.Transform = a.Transform.Apply(contact.Correction(penASign) * ka);
+            //     b.Transform = b.Transform.Apply(contact.Correction(penBSign) * kb);
+            // }
 
             return true;
         }

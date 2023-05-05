@@ -1,54 +1,45 @@
-using iShape.FixBox.Collision;
+using iShape.FixBox.Collider;
 using iShape.FixBox.Dynamic;
 using iShape.FixFloat;
 using Unity.Collections;
 
+namespace iShape.FixBox.Collision {
 
-namespace iShape.FixBox.Collider {
-
-    public static class ColliderSolver_ConvexToConvex {
+    public static class CollisionSolver_ConvexToConvex {
         
         public static Contact Collide(ConvexCollider a, ConvexCollider b, Transform tA, Transform tB) {
-            var ciA = new CircleCollider(tA.Position, a.Radius);
-            var ciB = new CircleCollider(tB.Position, b.Radius);
-            var ciContact = ColliderSolver_CircleToCircle.Collide(ciA, ciB);
-            if (ciContact.Type != ContactType.Outside) {
-                return ciContact;
-            }
-            
-            Contact contact;
-            Transform t;
             if (a.Points.Length > b.Points.Length) {
-                // work in a coord system
+                // work in A coord system
 
                 var mt = Transform.ConvertFromBtoA(tB, tA);
+                
                 var b2 = new ConvexCollider(mt, b, Allocator.Temp);
 
-                contact = Collide(a, b2);
+                var contact = Collide(a, b2);
                 b2.Dispose();
 
-                t = tA;
+                // return in global coord system
+                return tA.Convert(contact);
             } else {
-                // work in b coord system
+                // work in B coord system
 
                 var mt = Transform.ConvertFromBtoA(tA, tB);
+                
                 var a2 = new ConvexCollider(mt, a, Allocator.Temp);
 
-                contact = Collide(b, a2);
+                var contact = Collide(a2, b);
                 a2.Dispose();
                 
-                t = tB;
-            }
+                if (contact.Type != ContactType.Collide) {
+                    return Contact.Outside;
+                }
 
-            if (contact.Type != ContactType.Collide) {
-                return Contact.Outside;
+                // return in global coord system
+                return tB.Convert(contact);
             }
-            
-            // return in global coord system
-            return t.Convert(contact);
         }
 
-        
+        // Normal is always look at A * <-| * B        
         private static Contact Collide(ConvexCollider a, ConvexCollider b) {
             var cA = FindContact(a, b);
             var cB = FindContact(b, a);
@@ -57,13 +48,18 @@ namespace iShape.FixBox.Collider {
                 var middle = cA.Point.Middle(cB.Point);
                 var penetration = (cA.Penetration + cB.Penetration) / 2;
                 var count = (cA.Count + cB.Count) >> 1;
-                FixVec normal = cB.Penetration < cA.Penetration ? cB.Normal : cA.Normal;
 
+                FixVec normal;
+                if (cA.Penetration < cB.Penetration) {
+                    normal = cA.Normal.Negative;
+                } else {
+                    normal = cB.Normal;
+                }
                 return new Contact(middle, normal, penetration, count, ContactType.Collide);
             } else if (cB.Type == ContactType.Collide) {
                 return cB;
             } else if (cA.Type == ContactType.Collide) {
-                return cA;
+                return cA.NegativeNormal();
             } else {
                 return Contact.Outside;
             }

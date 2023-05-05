@@ -41,6 +41,11 @@ namespace iShape.FixBox.Collision {
             var cor = Correction(true);
             return $"Point{Point} Normal{Normal} Penetration: {Penetration} Correction{cor})";
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Contact NegativeNormal() {
+            return new Contact(Point, Normal.Negative, Penetration, Count, Type);
+        }
     }
 
 }
