@@ -25,7 +25,7 @@ namespace iShape.FixBox.Collider {
                 
                 if (sqrC >= sqrA && sqrC >= sqrB)
                 {
-                    long k = (sqrB - sqrA + sqrC).Div(sqrC) >> 1;
+                    long k = (sqrB - sqrA + sqrC).Div(2 * sqrC);
 
                     FixVec p = cb + dv * k;
 

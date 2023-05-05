@@ -100,10 +100,6 @@ namespace iShape.FixBox.Dynamic {
                 }
             }
 
-            long xa = 1;
-            long xb = xa >> 1;
-            // Debug.Log(xb);
-
             // apply result
             a.Velocity = new Velocity(aV2, aW2);
             
@@ -214,8 +210,8 @@ namespace iShape.FixBox.Dynamic {
                 var wFa = math.abs(aW2);
                 if (vFa < 100 && wFa < 400) {
                     // if body is near to stop, permanently stopping it
-                    aW2 = wFa < 20 ? 0 : aW2 >> 1;
-                    aV2 = vFa < 20 ? FixVec.Zero : aV2.Half;
+                    aW2 /= 2;
+                    aV2 = aV2.Half;
                 }
                 
                 // stop B
@@ -223,8 +219,8 @@ namespace iShape.FixBox.Dynamic {
                 var wFb = math.abs(bW2);
                 if (vFb < 100 && wFb < 400) {
                     // if body is near to stop, permanently stopping it
-                    bW2 = wFb < 20 ? 0 : bW2 >> 1;
-                    bV2 = vFb < 20 ? FixVec.Zero : bV2.Half;
+                    bW2 /= 2;
+                    bV2 = bV2.Half;
                 }
 
             }
