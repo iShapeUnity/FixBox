@@ -9,6 +9,13 @@ namespace iShape.FixBox.Collider {
     public static class ColliderSolver_ConvexToConvex {
         
         public static Contact Collide(ConvexCollider a, ConvexCollider b, Transform tA, Transform tB) {
+            var ciA = new CircleCollider(tA.Position, a.Radius);
+            var ciB = new CircleCollider(tB.Position, b.Radius);
+            var ciContact = ColliderSolver_CircleToCircle.Collide(ciA, ciB);
+            if (ciContact.Type != ContactType.Outside) {
+                return ciContact;
+            }
+            
             Contact contact;
             Transform t;
             if (a.Points.Length > b.Points.Length) {
@@ -48,8 +55,8 @@ namespace iShape.FixBox.Collider {
             
             if (cA.Type == ContactType.Collide && cB.Type == ContactType.Collide) {
                 var middle = cA.Point.Middle(cB.Point);
-                var penetration = (cA.Penetration + cB.Penetration) >> 1;
-                var count = cA.Count + cB.Count >> 1;
+                var penetration = (cA.Penetration + cB.Penetration) / 2;
+                var count = (cA.Count + cB.Count) >> 1;
                 FixVec normal = cB.Penetration < cA.Penetration ? cB.Normal : cA.Normal;
 
                 return new Contact(middle, normal, penetration, count, ContactType.Collide);

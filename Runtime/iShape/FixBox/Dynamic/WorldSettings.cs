@@ -2,7 +2,7 @@ namespace iShape.FixBox.Dynamic {
 
     public readonly struct WorldSettings {
 
-        public readonly int TimeScale;
+        public readonly long TimeStep;
         public readonly int BodyTimeScale;
         public readonly bool IsBulletVsBullet;
         public readonly bool IsPlayerVsPlayer;
@@ -14,8 +14,8 @@ namespace iShape.FixBox.Dynamic {
         
 
         public WorldSettings(
-            int timeScale = 4,
-            int bodyTimeScale = 2,
+            long timeStep,
+            int bodyTimeScale,
             bool isBulletVsBullet = false,
             bool isPlayerVsPlayer = false,
             int landCapacity = 64,
@@ -24,7 +24,7 @@ namespace iShape.FixBox.Dynamic {
             int gridSpaceFactor = 4,
             long freezeMargin = 10
             ) {
-            TimeScale = timeScale;
+            TimeStep = timeStep;
             BodyTimeScale = bodyTimeScale;
             IsBulletVsBullet = isBulletVsBullet;
             IsPlayerVsPlayer = isPlayerVsPlayer;

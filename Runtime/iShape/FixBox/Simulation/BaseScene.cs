@@ -55,7 +55,7 @@ namespace iShape.FixBox.Simulation {
             var Boundary = new Boundary(new FixVec(-a, -b), new FixVec(a, b));
 
             world = new World(Boundary, Settings.Settings, new FixVec(FixGravityX, FixGravityY), IsDebug, Allocator.Persistent);
-            timeStep = world.TimeStep;
+            timeStep = world.timeStep.ToDouble();
             DidWorldCreate();
         }
 

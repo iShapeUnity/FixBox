@@ -8,8 +8,8 @@ namespace iShape.FixBox.Component {
     [CreateAssetMenu(fileName = "FixBoxSettings", menuName = "FixBox/Settings")]
     public class FixBoxSettings: ScriptableObject, ISerializationCallbackReceiver {
 
-        [Range(min: 2, max: 8)]
-        public int TimeScale = 4;
+        [Range(min: 8, max: 32)]
+        public long TimeStep = 16;
         
         [Range(min: 1, max: 4)]
         public int BodyTimeScale = 2;
@@ -30,7 +30,7 @@ namespace iShape.FixBox.Component {
         public long FixFreezeMargin;
         
         public WorldSettings Settings => new WorldSettings(
-            TimeScale,
+            TimeStep,
             BodyTimeScale,
             IsBulletVsBullet,
             IsPlayerVsPlayer,
@@ -43,9 +43,6 @@ namespace iShape.FixBox.Component {
         
         public void OnBeforeSerialize() {
             FixFreezeMargin = FreezeMargin.ToFix();
-            if (BodyTimeScale > TimeScale) {
-                BodyTimeScale = TimeScale;
-            }
         }
 
         public void OnAfterDeserialize() { }
@@ -73,7 +70,7 @@ namespace iShape.FixBox.Component {
             GUILayout.EndVertical();
             
             GUILayout.BeginVertical();
-            float timeStep = (1 << fixBoxSettings.TimeScale) / 1024f;
+            float timeStep = fixBoxSettings.TimeStep.ToFloat();
             GUILayout.Label(timeStep.ToString("F8"), EditorStyles.label);
             EditorGUILayout.Space();
             GUILayout.EndVertical();
@@ -88,7 +85,7 @@ namespace iShape.FixBox.Component {
             GUILayout.EndVertical();
             
             GUILayout.BeginVertical();
-            float bodyStep = (1 << fixBoxSettings.BodyTimeScale) / 1024f;
+            float bodyStep = (fixBoxSettings.TimeStep / fixBoxSettings.BodyTimeScale).ToFloat();
             GUILayout.Label(bodyStep.ToString("F8"), EditorStyles.label);
             EditorGUILayout.Space();
             GUILayout.EndVertical();

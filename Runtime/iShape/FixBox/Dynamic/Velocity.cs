@@ -5,7 +5,7 @@ namespace iShape.FixBox.Dynamic {
 
     public readonly struct Velocity {
         
-        public static readonly Velocity Zero = new Velocity(FixVec.Zero);
+        public static readonly Velocity Zero = new(FixVec.Zero);
     
         public readonly FixVec Linear;
         public readonly long Angular;
@@ -19,9 +19,14 @@ namespace iShape.FixBox.Dynamic {
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Velocity Apply(int timeScale, FixVec Gravity) {
-            var dA = Gravity.DivTwo(timeScale);
+        public Velocity Apply(long timeStep, FixVec Gravity) {
+            var dA = Gravity * timeStep;
             return new Velocity(dA + Linear, Angular); 
+        }
+        
+        public override string ToString()
+        {
+            return $"Linear: {Linear} Angular: {Angular}";
         }
     }
 

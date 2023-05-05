@@ -7,6 +7,11 @@ namespace iShape.FixBox.Collider {
         
         // Do not work correctly with degenerate points
         public static Contact Collide(CircleCollider circle, ConvexCollider convex) {
+            var ciContact = ColliderSolver_CircleToCircle.Collide(circle, convex.CircleCollider);
+            if (ciContact.Type != ContactType.Outside) {
+                return ciContact;
+            }
+
             // Find the min separating edge.
             int normalIndex = 0;
             long separation = long.MinValue;

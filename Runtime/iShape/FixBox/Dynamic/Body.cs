@@ -51,16 +51,21 @@ namespace iShape.FixBox.Dynamic {
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void Iterate(int timeScale) {
-            Transform = Transform.Apply(Velocity, timeScale);
+        internal void Iterate(long timeStep) {
+            Transform = Transform.Apply(Velocity, timeStep);
             Boundary = Transform.Convert(Shape.Boundary);
         }
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void Iterate(int timeScale, FixVec Gravity) {
+        internal void Iterate(long timeScale, FixVec Gravity) {
             Velocity = Velocity.Apply(timeScale, Gravity);
             Transform = Transform.Apply(Velocity, timeScale);
             Boundary = Transform.Convert(Shape.Boundary);
+        }
+        
+        public override string ToString()
+        {
+            return $"Transform: ({Transform}) Velocity: ({Velocity})";
         }
     }
     

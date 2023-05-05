@@ -2,6 +2,7 @@ using iShape.FixBox.Dynamic;
 using iShape.FixBox.Geometry;
 using iShape.FixFloat;
 using Unity.Collections;
+using Unity.Mathematics;
 using UnityEngine.Assertions;
 
 namespace iShape.FixBox.Collider {
@@ -13,7 +14,10 @@ namespace iShape.FixBox.Collider {
         public NativeArray<FixVec> Points { get; }
         public NativeArray<FixVec> Normals { get; }
         public readonly Boundary Boundary;
+        public readonly long Radius;
 
+        public CircleCollider CircleCollider => new CircleCollider(Center, Radius);
+        
         public ConvexCollider(Size size, Allocator allocator) {
             long a = (size.Width + 1) >> 1;
             long b = (size.Height + 1) >> 1;
@@ -34,6 +38,7 @@ namespace iShape.FixBox.Collider {
             Points = points;
             Normals = normals;
             Boundary = new Boundary(min: new FixVec(-a, -b), max: new FixVec(a, b));
+            Radius = math.min(a, b);
         }
 
         public ConvexCollider(NativeArray<FixVec> points, Allocator allocator) {
@@ -77,6 +82,22 @@ namespace iShape.FixBox.Collider {
             points.CopyTo(Points);
             Normals = normals;
             Boundary = new Boundary(points: points);
+
+            var minR = long.MaxValue;
+        
+            for (int i = 0; i < points.Length; ++i) {
+                var p = points[i];
+                var n = normals[i];
+
+                var v = p - Center;
+                var r = math.abs(v.DotProduct(n));
+            
+                if (r < minR) {
+                    minR = r;
+                }
+            }
+
+            Radius = minR;
         }
 
         public ConvexCollider(Transform transform, ConvexCollider collider, Allocator allocator) {
@@ -92,6 +113,7 @@ namespace iShape.FixBox.Collider {
             Normals = normals;
             Boundary = transform.Convert(collider.Boundary);
             Center = transform.ConvertAsPoint(collider.Center);
+            Radius = collider.Radius;
         }
         
         public void Dispose() {

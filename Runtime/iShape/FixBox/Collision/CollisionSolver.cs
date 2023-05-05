@@ -1,6 +1,5 @@
 using iShape.FixBox.Collider;
 using iShape.FixBox.Dynamic;
-using iShape.FixFloat;
 using Unity.Collections;
 
 namespace iShape.FixBox.Collision {

@@ -1,6 +1,7 @@
 using iShape.FixBox.Collision;
 using iShape.FixFloat;
 using Unity.Mathematics;
+using UnityEngine;
 
 namespace iShape.FixBox.Dynamic {
 
@@ -13,6 +14,9 @@ namespace iShape.FixBox.Dynamic {
             if (contact.Type == ContactType.Outside) {
                 return false;
             }
+            
+            // Debug.Log("---Start---");
+            // Debug.Log(a);
 
             // normal to contact point
             var n = contact.Normal;
@@ -33,6 +37,7 @@ namespace iShape.FixBox.Dynamic {
             // relative velocity
             var rV1 = aV1 - bV1 + aR.CrossProduct(aW1) - bR.CrossProduct(bW1); 
 
+            // Debug.Log("Relative: " + rV1 + " Factor: " + rV1.DotProduct(n));
             // only if getting closer
             if (rV1.DotProduct(n) > 0) {
                 return false;
@@ -90,19 +95,29 @@ namespace iShape.FixBox.Dynamic {
                 var wF = math.abs(aW2);
                 if (vF < 100 && wF < 400) {
                     // if body is near to stop, permanently stopping it
-                    aW2 = wF < 20 ? 0 : aW2 >> 1;
-                    aV2 = vF < 20 ? FixVec.Zero : aV2.Half;
+                    aW2 = aW2 / 2;
+                    aV2 = aV2.Half;
                 }
             }
+
+            long xa = 1;
+            long xb = xa >> 1;
+            // Debug.Log(xb);
 
             // apply result
             a.Velocity = new Velocity(aV2, aW2);
             
-            // contact.Log();
+            // Debug.Log("---After---");
+            // Debug.Log(a);
+            // Debug.Log(contact);
+            
+
             if (contact.Penetration != 0) {
-                var penetrationSign = (a.Transform.Position - contact.Point).DotProduct(contact.Normal) > 0;
+                var penetrationSign = (a.Transform.Position - b.Transform.Position).DotProduct(contact.Normal) > 0;
+                var correction = contact.Correction(penetrationSign);
+                // Debug.Log($"correction: {correction}");
                 // fix contact delta
-                a.Transform = a.Transform.Apply(contact.Correction(penetrationSign));                
+                a.Transform = a.Transform.Apply(correction);                
             }
 
             return true;

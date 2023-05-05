@@ -3,7 +3,6 @@ using System.Runtime.CompilerServices;
 using iShape.FixBox.Collider;
 using iShape.FixBox.Collision;
 using iShape.FixFloat;
-using UnityEngine;
 
 namespace iShape.FixBox.Dynamic {
 
@@ -35,8 +34,8 @@ namespace iShape.FixBox.Dynamic {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public FixVec ConvertAsVector(FixVec vector) {
-            long x = (Rotator.x * vector.x - Rotator.y * vector.y) >> 10;
-            long y = (Rotator.y * vector.x + Rotator.x * vector.y) >> 10;
+            long x = (Rotator.x * vector.x - Rotator.y * vector.y).Normalize();
+            long y = (Rotator.y * vector.x + Rotator.x * vector.y).Normalize();
             return new FixVec(x, y);
         }
 
@@ -73,12 +72,12 @@ namespace iShape.FixBox.Dynamic {
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Transform Apply(Velocity v, int timeScale) {
-            FixVec dv = v.Linear.DivTwo(timeScale);
+        public Transform Apply(Velocity v, long timeStep) {
+            FixVec dv = v.Linear * timeStep;
             FixVec p = Position + dv;
 
             if (v.Angular != 0) {
-                long a = Angle + (v.Angular >> timeScale);
+                long a = Angle + v.Angular.Mul(timeStep);
                 return new Transform(p, a);
             } else {
                 return new Transform(p, Angle, Rotator);
@@ -100,8 +99,8 @@ namespace iShape.FixBox.Dynamic {
 
             var dv = b.Position - a.Position;
 
-            var x = (cosA * dv.x + sinA * dv.y) >> 10;
-            var y = (cosA * dv.y - sinA * dv.x) >> 10;
+            var x = (cosA * dv.x + sinA * dv.y).Normalize();
+            var y = (cosA * dv.y - sinA * dv.x).Normalize();
 
             return new Transform(new FixVec(x, y), ang, rot);
         }
@@ -114,10 +113,15 @@ namespace iShape.FixBox.Dynamic {
 
             var dv = b.Position - a.Position;
 
-            var x = (cosA * dv.x + sinA * dv.y) >> 10;
-            var y = (cosA * dv.y - sinA * dv.x) >> 10;
+            var x = (cosA * dv.x + sinA * dv.y).Normalize();
+            var y = (cosA * dv.y - sinA * dv.x).Normalize();
 
             return new FixVec(x, y);
+        }
+        
+        public override string ToString()
+        {
+            return $"Position: {Position} Angle: {Angle}";
         }
     }
 

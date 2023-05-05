@@ -1,6 +1,5 @@
 using System.Runtime.CompilerServices;
 using iShape.FixFloat;
-using UnityEngine;
 
 namespace iShape.FixBox.Collision {
 
@@ -37,13 +36,11 @@ namespace iShape.FixBox.Collision {
             }
         }
         
-        /*
-        public void Log() {
+        public override string ToString()
+        {
             var cor = Correction(true);
-            var result = "Point(" + Point.x + "," + Point.y + ") Normal(" + Normal.x + "," + Normal.y + ") Penetration: " + Penetration + " Correction(" + cor.x + "," + cor.y + ")";
-            Debug.Log(result);
+            return $"Point{Point} Normal{Normal} Penetration: {Penetration} Correction{cor})";
         }
-        */
     }
 
 }
