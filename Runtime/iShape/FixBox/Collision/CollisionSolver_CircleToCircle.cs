@@ -34,7 +34,7 @@ namespace iShape.FixBox.Collision {
                     return new Contact(
                         p,
                         nA,
-                        penetration,
+                        -penetration,
                         1,
                         ContactType.Collide
                         );

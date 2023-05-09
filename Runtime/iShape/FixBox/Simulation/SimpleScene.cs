@@ -9,7 +9,9 @@ namespace iShape.FixBox.Simulation {
     public class SimpleScene: BaseScene {
 
         protected List<FixBoxBody> fixBodies; 
-        
+
+        protected override void WillWorldCreate() { }
+
         protected override void DidWorldCreate() {
             var objs = FindObjectsOfType<FixBoxBody>();
             fixBodies = objs.OrderBy(fb => fb.Id).ToList();

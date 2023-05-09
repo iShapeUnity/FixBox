@@ -39,7 +39,7 @@ namespace iShape.FixBox.Collision {
             FixVec v2 = convex.Points[vertIndex2];
             FixVec n1 = convex.Normals[vertIndex1];
 
-            long delta = circle.Radius - separation;
+            long delta = separation - circle.Radius;
             
             // If the center is inside the polygon ...
             if (separation < 0) {

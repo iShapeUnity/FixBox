@@ -20,7 +20,7 @@ namespace iShape.FixBox.Dynamic {
         private readonly long bodyTimeStep;
         private readonly int bodyTimeScale;
 
-        public World(Boundary boundary, WorldSettings settings, FixVec gravity, bool isDebug, Allocator allocator) {
+        public World(Boundary boundary, WorldSettings settings, FixVec gravity, Allocator allocator) {
             FreezeBoundary = new Boundary(boundary.Min - new FixVec(settings.FreezeMargin, settings.FreezeMargin), boundary.Max + new FixVec(settings.FreezeMargin, settings.FreezeMargin));
             Settings = settings;
             Gravity = gravity;
@@ -46,7 +46,7 @@ namespace iShape.FixBox.Dynamic {
                 var body = lands[i];
                 if (!body.Velocity.isZero) {
 
-                    body.Iterate(timeStep);
+                    body.IterateStatic(timeStep);
                     lands[i] = body;
                     // TODO update landGrid
                 }
@@ -62,8 +62,7 @@ namespace iShape.FixBox.Dynamic {
 
                 for (int j = 0; j < players.Length; ++j) {
                     var player = players[j];
-
-                    player.Iterate(bodyTimeStep, Gravity);
+                    player.IterateDynamic(bodyTimeStep);
 
                     players[j] = player;
 
@@ -143,6 +142,20 @@ namespace iShape.FixBox.Dynamic {
                     }
                 }
 */
+
+                // reset all forces to bodies
+                
+                for (int j = 0; j < players.Length; ++j) {
+                    var body = players[j];
+                    body.PostIterate(body.ApplyGravity ? Gravity : FixVec.Zero);
+                    players[j] = body;
+                }
+                
+                for (int j = 0; j < bullets.Length; ++j) {
+                    var body = bullets[j];
+                    body.PostIterate(body.ApplyGravity ? Gravity : FixVec.Zero);
+                    bullets[j] = body;
+                }
             }
         }
 

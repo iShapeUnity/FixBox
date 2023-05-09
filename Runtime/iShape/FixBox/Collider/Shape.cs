@@ -13,7 +13,7 @@ namespace iShape.FixBox.Collider {
 
         public readonly Form Form;
         public readonly long Area;
-        public readonly long Inertia;
+        public readonly long UnitInertia;
 
         public bool IsNotEmpty => Radius >= 0;
         
@@ -34,7 +34,7 @@ namespace iShape.FixBox.Collider {
             Boundary = new Boundary(radius);
             long rr = radius.Sqr();
             Area = FixNumber.PI.Mul(rr);
-            Inertia = Area.Mul(rr) / 2;
+            UnitInertia = rr / 2;
         }
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -44,8 +44,7 @@ namespace iShape.FixBox.Collider {
             Form = Form.rect;
             Boundary = new Boundary(size);
             Area = size.Area();
-            long ab = (size.Width.Sqr() + size.Height.Sqr()) / 12; 
-            Inertia = ab.Mul(Area);
+            UnitInertia = (size.Width.Sqr() + size.Height.Sqr()).Mul(85); // 85 ~= 1024 / 12 
         }
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -55,7 +54,7 @@ namespace iShape.FixBox.Collider {
             Form = Form.polygon;
             Boundary = boundary;
             Area = 0;
-            Inertia = 0;
+            UnitInertia = 0;
         }
 
     }

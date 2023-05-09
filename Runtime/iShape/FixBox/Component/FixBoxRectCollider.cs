@@ -25,6 +25,10 @@ namespace iShape.FixBox.Component {
         }
         
         public void OnBeforeSerialize() {
+            this.ValidateFields();
+        }
+
+        public void ValidateFields() {
             FixWidth = Width.ToFix();
             FixHeight = Height.ToFix();
         }

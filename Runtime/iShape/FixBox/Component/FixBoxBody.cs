@@ -122,15 +122,26 @@ namespace iShape.FixBox.Component {
         }
         
         public void OnBeforeSerialize() {
-            var t = transform;
-            var pos = t.position;
-            fixX = pos.x.ToFix();
-            fixY = pos.y.ToFix();
-
-            float angleInDegrees = t.rotation.eulerAngles.z;
-            float angleInRad = math.radians(angleInDegrees);
-            fixAngle = angleInRad.ToFix();
+            this.ValidateFields();
         }
+
+        public void ValidateFields() {
+            var t = this.GetComponent<UnityEngine.Transform>();
+            if (t != null) {
+                
+                var pos = t.position;
+                fixX = pos.x.ToFix();
+                fixY = pos.y.ToFix();
+                float angleInDegrees = t.rotation.eulerAngles.z;
+                float angleInRad = math.radians(angleInDegrees);
+                fixAngle = angleInRad.ToFix();
+            } else {
+                fixX = 0;
+                fixY = 0;
+                fixAngle = 0;
+            }
+        }
+        
 
         public void OnAfterDeserialize() { }
     }

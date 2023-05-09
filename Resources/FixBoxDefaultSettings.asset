@@ -17,7 +17,7 @@ MonoBehaviour:
   IsBulletVsBullet: 0
   IsPlayerVsPlayer: 1
   LandCapacity: 64
-  PlayerCapacity: 32
+  PlayerCapacity: 64
   BulletCapacity: 64
   GridSpaceFactor: 5
   FreezeMargin: 0

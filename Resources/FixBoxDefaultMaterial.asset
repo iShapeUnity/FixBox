@@ -12,9 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: adb526e1bc794b4d9a685e30a1e50e2f, type: 3}
   m_Name: FixBoxDefaultMaterial
   m_EditorClassIdentifier: 
-  Bounce: 0.495
-  Friction: 0.56
-  Density: 1
-  FixBounce: 506
-  FixFriction: 573
-  FixDensity: 1024
+  Bounce: 0.089
+  Friction: 0.479
+  Density: 10
+  AirLinearFriction: 22
+  AirAngularFriction: 22
+  FixBounce: 91
+  FixFriction: 490
+  FixDensity: 10240
+  FixAirLinearFriction: 1022
+  FixAirAngularFriction: 1022

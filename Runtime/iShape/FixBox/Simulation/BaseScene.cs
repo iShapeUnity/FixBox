@@ -54,7 +54,8 @@ namespace iShape.FixBox.Simulation {
             var b = FixHeight >> 1;
             var Boundary = new Boundary(new FixVec(-a, -b), new FixVec(a, b));
 
-            world = new World(Boundary, Settings.Settings, new FixVec(FixGravityX, FixGravityY), IsDebug, Allocator.Persistent);
+            WillWorldCreate();
+            world = new World(Boundary, Settings.Settings, new FixVec(FixGravityX, FixGravityY), Allocator.Persistent);
             timeStep = world.timeStep.ToDouble();
             DidWorldCreate();
         }
@@ -130,6 +131,8 @@ namespace iShape.FixBox.Simulation {
             this.DidUpdate();
             currentTick = targetTick;
         }
+        
+        protected abstract void WillWorldCreate();
 
         protected abstract void DidWorldCreate();
 
