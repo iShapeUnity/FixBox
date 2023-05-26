@@ -2,7 +2,7 @@ using System.Runtime.CompilerServices;
 using iShape.FixFloat;
 using Unity.Collections;
 
-namespace iShape.FixBox.Geometry {
+namespace iShape.FixBox.Collider {
 
     public static class ConvexExtension {
         
@@ -37,7 +37,7 @@ namespace iShape.FixBox.Geometry {
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static float Orientation(FixVec a, FixVec b, FixVec c)
+        private static long Orientation(FixVec a, FixVec b, FixVec c)
         {
             return (b.y - a.y) * (c.x - b.x) - (b.x - a.x) * (c.y - b.y);
         }

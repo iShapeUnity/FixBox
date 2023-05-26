@@ -1,4 +1,3 @@
-using CodiceApp;
 using iShape.FixBox.Collision;
 using iShape.FixFloat;
 using Unity.Mathematics;

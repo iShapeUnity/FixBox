@@ -49,7 +49,7 @@ namespace iShape.FixBox.Dynamic {
             if (Type != BodyType.land) {
                 Mass = shape.Area.Mul(Material.Density);
                 InvMass = FixNumber.Unit.Div(Mass);
-                UnitInertia = shape.UnitInertia.Mul(Mass);
+                UnitInertia = shape.UnitInertia;
                 InvInertia = FixNumber.Unit.Div(UnitInertia.Mul(Mass));
             }
             Boundary = Transform.Convert(shape.Boundary);

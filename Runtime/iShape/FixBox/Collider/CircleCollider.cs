@@ -1,11 +1,9 @@
-using iShape.FixBox.Collision;
 using iShape.FixFloat;
 
 namespace iShape.FixBox.Collider {
 
     public readonly struct CircleCollider
     {
-        // In local parent coordinate system
         public FixVec Center { get; }
         public long Radius { get; }
 

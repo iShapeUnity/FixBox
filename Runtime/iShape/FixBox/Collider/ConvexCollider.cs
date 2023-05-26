@@ -1,5 +1,4 @@
 using iShape.FixBox.Dynamic;
-using iShape.FixBox.Geometry;
 using iShape.FixFloat;
 using Unity.Collections;
 using Unity.Mathematics;

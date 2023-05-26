@@ -36,18 +36,14 @@ namespace iShape.FixBox.Collider {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Boundary(NativeArray<FixVec> points) {
-            int n = points.Length;
-            int i = 1;
-
             FixVec p0 = points[0];
             long minX = p0.x;
             long maxX = p0.x;
             long minY = p0.y;
             long maxY = p0.y;
 
-            while (i < n) {
+            for (int i = 1; i < points.Length; ++i) {
                 FixVec p = points[i];
-                i += 1;
 
                 minX = math.min(minX, p.x);
                 maxX = math.max(maxX, p.x);
